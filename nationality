@@ -12,14 +12,12 @@ library(ggplot2)
 template_remit_raw <- read_excel("C:\\Users\\P1318124\\Downloads\\0. Template Remit and Prepaid Topup.xlsx","Remit raw")
 
 dim(template_remit_raw) 
-#702096 40
-#rows=702096, columns=40
+
 
 daily_remit_natly <- read.csv("C:\\Users\\P1318124\\Downloads\\RepResult.4.Report_Remittance_Nationality.S.1.Daily_Report_Remittance_by_Nationality_20180725063000.csv",header=TRUE)
 
 dim(daily_remit_natly)
-#1937 31
-#rows=1937, columns=31
+
 
 df_template_remit_raw <- as.data.frame(template_remit_raw)
 
@@ -57,10 +55,10 @@ plot(df_weekdays)
 
 #Checking
 length(weekdays(realdate)[weekdays(realdate)=="Tuesday"])
-#1915 Tuesday's
+
 
 length(weekdays(realdate)[weekdays(realdate)!="Tuesday"])
-#22 non-Tuesday's
+
 
 template_ref <- read_excel("C:\\Users\\P1318124\\Downloads\\0. Template Remit and Prepaid Topup.xlsx","Ref")
 
