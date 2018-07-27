@@ -69,3 +69,32 @@ if(is.element(df_daily_remit_natly$SOURCE_MSISDN[i],t(template_ref))){
 test_user[i] <- "YES"
 }
 }
+
+MSISDN_MARK <- data.frame(df_daily_remit_natly$SOURCE_MSISDN,df_daily_remit_natly$MARK) %>%
+unite(x,c(df_daily_remit_natly$SOURCE_MSISDN,df_daily_remit_natly$MARK),sep="",remove=FALSE)
+
+MSISDN_MARK <- paste(df_daily_remit_natly$SOURCE_MSISDN,df_daily_remit_natly$MARK,sep="")
+
+plot(as.data.frame(df_daily_remit_natly$MARK))
+
+txn_fee <- df_daily_remit_natly$TRANSACTION_FEE_SGD
+
+for(i in 1:nrow(df_daily_remit_natly)){
+
+if(df_daily_remit_natly$TRANSACTION_FEE_SGD[i] < 0){
+
+txn_fee[i] <- (df_daily_remit_natly$TRANSACTION_FEE_SGD[i])/(-1.)
+
+}
+}
+
+fx_margin <- df_daily_remit_natly$FX_MARGIN_SGD
+
+for(i in 1:nrow(df_daily_remit_natly)){
+
+if(df_daily_remit_natly$FX_MARGIN_SGD[i] < 0){
+
+fx_margin[i] <- fx_margin[i]/(-1)
+
+}
+}
