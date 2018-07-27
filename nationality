@@ -1,0 +1,73 @@
+install.packages("XLConnect", repos="http://cran.us.r-project.org")
+install.packages("readxl", repos="http://cran.us.r-project.org")
+install.packages("lubridate",repos="http://cran.us.r-project.org")
+install.packages("tidyverse",repos="http://cran.us.r-project.org")
+install.packages("ggplot2",repos="http://cran.us.r-project.org")
+library(XLConnect)
+library(readxl)
+library(tidyverse) #to use unite function.
+library(lubridate) #to use month, year function.
+library(ggplot2)
+
+template_remit_raw <- read_excel("C:\\Users\\P1318124\\Downloads\\0. Template Remit and Prepaid Topup.xlsx","Remit raw")
+
+dim(template_remit_raw) 
+#702096 40
+#rows=702096, columns=40
+
+daily_remit_natly <- read.csv("C:\\Users\\P1318124\\Downloads\\RepResult.4.Report_Remittance_Nationality.S.1.Daily_Report_Remittance_by_Nationality_20180725063000.csv",header=TRUE)
+
+dim(daily_remit_natly)
+#1937 31
+#rows=1937, columns=31
+
+df_template_remit_raw <- as.data.frame(template_remit_raw)
+
+df_daily_remit_natly <- as.data.frame(daily_remit_natly)
+#daily_remit_natly is already a dataframe.
+#convert daily_remit_natly to a dataframe to be safe.
+
+#Initialise all-zero matrix to combine with df_daily_remit_natly.
+#so that df_daily_remit_natly will have same number of columns as df_template_remit_raw.
+zero_add <- matrix(rep(0, nrow(df_daily_remit_natly)*9),nrow(df_daily_remit_natly),9)
+
+merge_df_daily_remit_natly <- cbind(df_daily_remit_natly,zero_add)
+
+tada <- merge_df_daily_remit_natly[,2]
+
+#Data format in second column of merge_df_daily_remit_natly is a factor.
+#Supposed to be in date format, according to the format of
+#the second column of df_template_remit_raw.
+#so as to do a successful rbind between merge_df_daily_remit_natly
+#and df_template_remit_raw.
+realdate <- as.POSIXct(tada,format='%d/%m/%Y %H:%M:%S', tz="UTC")
+
+yea <- year(realdate)
+
+mon <- month(realdate)
+
+bla <- data.frame(yea,mon) %>%
+unite(x,c(yea,mon),sep="",remove=FALSE)
+
+weekdays(realdate)
+
+df_weekdays <- as.data.frame(weekdays(realdate))
+
+plot(df_weekdays)
+
+#Checking
+length(weekdays(realdate)[weekdays(realdate)=="Tuesday"])
+#1915 Tuesday's
+
+length(weekdays(realdate)[weekdays(realdate)!="Tuesday"])
+#22 non-Tuesday's
+
+template_ref <- read_excel("C:\\Users\\P1318124\\Downloads\\0. Template Remit and Prepaid Topup.xlsx","Ref")
+
+test_user <- rep("No", nrow(df_daily_remit_natly))
+
+for(i in 1:nrow(df_daily_remit_natly)){
+if(is.element(df_daily_remit_natly$SOURCE_MSISDN[i],t(template_ref))){
+test_user[i] <- "YES"
+}
+}
