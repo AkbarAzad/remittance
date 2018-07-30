@@ -9,7 +9,7 @@ library(tidyverse) #to use unite function.
 library(lubridate) #to use month, year function.
 library(ggplot2)
 
-template_remit_raw <- read_excel("C:\\Users\\P1318124\\Downloads\\0. Template Remit and Prepaid Topup.xlsx","Remit raw")
+template_remit_raw <- read_excel("C:\\Users\\P1318124\\Downloads\\Copy of 0.Template Remit and Prepaid Topup.xlsx","Remit raw")
 
 dim(template_remit_raw) 
 
@@ -17,7 +17,6 @@ dim(template_remit_raw)
 daily_remit_natly <- read.csv("C:\\Users\\P1318124\\Downloads\\RepResult.4.Report_Remittance_Nationality.S.1.Daily_Report_Remittance_by_Nationality_20180725063000.csv",header=TRUE)
 
 dim(daily_remit_natly)
-
 
 df_template_remit_raw <- as.data.frame(template_remit_raw)
 
@@ -55,20 +54,26 @@ plot(df_weekdays)
 
 #Checking
 length(weekdays(realdate)[weekdays(realdate)=="Tuesday"])
-
+#1915 Tuesday's
 
 length(weekdays(realdate)[weekdays(realdate)!="Tuesday"])
+#22 non-Tuesday's
 
-
-template_ref <- read_excel("C:\\Users\\P1318124\\Downloads\\0. Template Remit and Prepaid Topup.xlsx","Ref")
+template_ref <- read_excel("C:\\Users\\P1318124\\Downloads\\Copy of 0.Template Remit and Prepaid Topup.xlsx","Ref")
 
 test_user <- rep("No", nrow(df_daily_remit_natly))
 
 for(i in 1:nrow(df_daily_remit_natly)){
 if(is.element(df_daily_remit_natly$SOURCE_MSISDN[i],t(template_ref))){
+
 test_user[i] <- "YES"
+
+
 }
+
+
 }
+
 
 MSISDN_MARK <- data.frame(df_daily_remit_natly$SOURCE_MSISDN,df_daily_remit_natly$MARK) %>%
 unite(x,c(df_daily_remit_natly$SOURCE_MSISDN,df_daily_remit_natly$MARK),sep="",remove=FALSE)
@@ -98,3 +103,136 @@ fx_margin[i] <- fx_margin[i]/(-1)
 
 }
 }
+
+monthy <- bla[,1]
+
+final_1 <- cbind(df_daily_remit_natly,monthy)
+
+daysy <- substr(weekdays(realdate),1,3)
+
+final_2 <- cbind(final_1,daysy)
+
+final_3 <- cbind(final_2,txn_fee)
+
+final_4 <- cbind(final_3, fx_margin)
+
+final_5 <- cbind(final_4, weekdate)
+
+final_6 <- cbind(final_5, fy_vec)
+
+final_7 <- cbind(final_6,test_user)
+
+final_8 <- cbind(final_7, MSISDN_MARK)
+
+final_9 <- cbind(final_8, realdate_3)
+
+final_10 <- final_9
+
+realdate_2 <- realdate
+
+realdate_2[,2] <- strptime(as.character(realdate_2[,1], 
+"%Y-%m-%d"))
+
+realdate_3 <- strptime(as.character(realdate_2, 
+"%Y-%m-%d"))
+
+realdate_2[,3] <- format(realdate_2[,2], %d-%m-%Y")
+
+weekdate <- rep("29-Jul-18", nrow(df_daily_remit_natly))
+
+for(i in 1:length(realdate_3)){
+
+if(realdate_3[i] == "22-07-2018"){
+
+weekdate[i] <- "22-Jul-18"
+
+}
+}
+
+fy_vec <- rep("FY1819",nrow(df_daily_remit_natly))
+
+fy_template_vec <- rep("FY1819",nrow(df_template_remit_raw))
+
+final_10[,40] <- as.POSIXct(final_10[,40],format='%d-%m-%Y')
+
+weekdate_template <- rep("29-Jul-18", nrow(df_daily_remit_natly))
+
+for(i in 1:length(***)){
+
+if(realdate_3[i] == "22-07-2018"){
+
+weekdate_template[i] <- "22-Jul-18"
+
+}
+}
+
+final_10[,1] <- as.numeric(final_10[,1])
+
+final_10[,2] <- as.POSIXct(final_10[,2], format='%Y-%m-%d %H:%M:%S', tz="UTC")
+
+final_10[,3] <- as.numeric(final_10[,3])
+
+final_10[,4] <- as.character(final_10[,4])
+
+final_10[,5] <- as.character(final_10[,5])
+
+final_10[,6] <- as.character(final_10[,6])
+
+final_10[,7] <- as.character(final_10[,7])
+
+final_10[,8] <- as.character(final_10[,8])
+
+final_10[,9] <- as.character(final_10[,9])
+
+final_10[,16] <- as.character(final_10[,16])
+
+final_10[,18] <- as.character(final_10[,18])
+
+final_10[,19] <- as.character(final_10[,19])
+
+final_10[,27] <- as.numeric(final_10[,27])
+
+final_10[,29] <- as.character(final_10[,29])
+
+final_10[,30] <- as.POSIXct(final_10[,30], format='%Y-%m-%d %H:%M:%S', tz="UTC")
+
+final_10[,20] <- as.numeric(final_10[,20])
+
+df_template_remit_raw[,31] <- as.character(df_template_remit_raw[,31])
+
+final_10[,31] <- as.character(final_10[,31])
+
+final_10[,32] <- as.character(final_10[,32])
+
+final_10[,33] <- as.character(final_10[,33])
+
+final_10[,36] <- as.POSIXct(final_10[,36], format='%Y-%m-%d', tz="UTC")
+
+final_10[,37] <- as.character(final_10[,37])
+
+final_10[,38] <- as.character(final_10[,38])
+
+final_10[,39] <- as.character(final_10[,39])
+
+final_10[,2] <- dmy_hms(final_9[,2])
+
+final_10[,36] <- dmy(final_9[,36],tz="UTC")
+
+final_10[,40] <- dmy(final_9[,40], tz="UTC")
+
+test_class <- rep("FALSE", 40)
+
+for(i in 1:40){
+
+if(class(df_template_remit_raw[,i])==class(final_10[,i])){
+
+test_class[i] <- "TRUE"
+
+}
+}
+
+colnames(final_10) <- colnames(df_template_remit_raw)
+
+finalised_template <- rbind(df_template_remit_raw, final_10)
+
+write.csv(finalised_template, "C:\\Users\\P1318124\\Downloads\\New_Template_Remit_Nationality_R.csv")
