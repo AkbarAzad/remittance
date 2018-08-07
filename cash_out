@@ -1,0 +1,251 @@
+install.packages("eeptools",repos="http://cran.us.r-project.org")
+install.packages("janitor",repos="http://cran.us.r-project.org")
+install.packages("jsonlite",repos="http://cran.us.r-project.org")
+library(janitor)
+library(jsonlite)
+library(openxlsx)
+library(xlsx)
+library(tidyverse)
+library(lubridate)
+library(eeptools) #calculate age from date.
+library(XLConnect)
+library(readxl)
+
+options(java.parameters="-Xmx2048m")
+
+#load workbook to later replace updated data into Cash out raw tab.
+#template_wb <- loadWorkbook("C:\\Users\\P1318124\\Downloads\\0. Template Remit and Prepaid Topup (1).xlsx")
+
+cash_out_raw <- read.csv("C:\\Users\\P1318124\\Downloads\\New_Cash_Out.csv",header=TRUE)
+
+#write.csv(cash_out_raw,"C:\\Users\\P1318124\\Downloads\\Cash Out Raw.csv")
+
+cash_out_daily <- read.csv("C:\\Users\\P1318124\\Desktop\\Remittance\\Daily Telepin Reports\\04 Aug to 06 Aug\\RepResult.21.Daily_Report_CashOut.S.1.Daily_Report_for_Cash_Out_20180806000100.csv")
+
+dim(cash_out_raw)
+dim(cash_out_daily)
+
+
+cash_out_daily_filtered <- cash_out_daily %>%
+filter(BRAND_CATEGORY_NAME %in% c("SingTel mRemit" ,"SingTel Prepaid Top Up"))
+
+count(cash_out_daily_filtered,cash_out_daily_filtered$BRAND_CATEGORY_NAME)
+
+
+cash_out_daily_filtered_sort <- cash_out_daily_filtered[order(BRAND_CATEGORY_NAME),]
+
+dim(cash_out_daily_filtered_sort)
+
+colnames_cash_out_raw <- colnames(cash_out_raw)
+colnames_cash_out_daily_filtered_sort <- colnames(cash_out_daily_filtered_sort)
+
+df_cash_out_raw <- as.data.frame(cash_out_raw)
+
+df_cash_out_raw <- df_cash_out_raw[,-1]
+
+############################################################################################################
+zero_add <- matrix(rep(0, nrow(cash_out_daily_filtered_sort)*6),nrow(cash_out_daily_filtered_sort),6)
+merge_cash_out_daily_filtered_sort <- cbind(cash_out_daily_filtered_sort,zero_add)
+
+
+############################################################################################################
+#DATE.
+tada <- merge_cash_out_daily_filtered_sort[,2]
+
+#REPORT DAY.
+realdate <- as.POSIXct(tada,format='%d/%m/%Y', tz="UTC")
+
+yea <- year(realdate)
+mon <- month(realdate)
+bla <- data.frame(yea,mon) %>%
+unite(x,c(yea,mon),sep="",remove=FALSE)
+weekdays(realdate)
+df_weekdays <- as.data.frame(weekdays(realdate))
+
+############################################################################################################
+#MONTH.
+monthy <- bla[,1]
+
+############################################################################################################
+#TEST USERS.
+template_ref <- read_excel("C:\\Users\\P1318124\\Downloads\\Copy of 0.Template Remit and Prepaid Topup.xlsx","Ref")
+template_ref_vec <- as.vector(unlist(template_ref))
+test_user <- rep("NO", nrow(cash_out_daily_filtered_sort))
+for(i in 1:length(cash_out_daily_filtered_sort)){
+if(is.element(cash_out_daily_filtered_sort$ACCOUNT_MSISDN[i],template_ref_vec)){
+test_user[i] <- "YES"
+}
+}
+
+
+class(cash_out_raw$TRANSACTION_DATE)
+
+class(cash_out_daily_filtered_sort$TRANSACTION_DATE)
+
+head(cash_out_raw$TRANSACTION_DATE)
+head(cash_out_daily_filtered_sort$TRANSACTION_DATE)
+
+############################################################################################################
+#TRANSACTION_DATE.
+date_cash_out_daily <- dmy_hms(cash_out_daily_filtered_sort$TRANSACTION_DATE,tz="UTC")
+
+############################################################################################################
+#DOB.
+DOB_date <- dmy_hms(cash_out_daily_filtered_sort$DOB)
+#DOB USE.
+DOB_date_2 <- as.POSIXct(DOB_date, format="%Y-%m-%d",tz="UTC")
+
+#DOB_date_3 <- as.Date(DOB_date_2, format="%Y-%m-%d",tz="UTC") #works
+                      
+#txn_date <- dmy_hms(cash_out_daily_filtered_sort$TRANSACTION_DATE, format="%d-%m-%Y %H-%M-%S",tz="GMT")
+
+############################################################################################################
+#TRANSACTION DAY.
+txn_date <- dmy_hms(cash_out_daily_filtered_sort$TRANSACTION_DATE, format="%d-%m-%Y %H-%M-%S",tz="GMT")
+txn_date <- txn_date[-1954]
+
+#Month
+#txn_month <- month(txn_date)
+#txn_year <- year(txn_date)
+#plot(as.data.frame(txn_month))
+
+class(cash_out_raw$TRANSACTION_DAY)
+
+class(cash_out_raw$TRANSACTION_DATE)
+
+class(cash_out_daily_filtered_sort$TRANSACTION_DATE)
+
+class(txn_date)
+
+#bla <- data.frame(txn_year,txn_month) %>%
+#unite(x,c(txn_year,txn_month),sep="",remove=FALSE)
+
+#monthy <- bla[,1]
+
+head(as.character(monthy))
+
+convertToDate(cash_out_raw$MONTH)
+
+excel_numeric_to_date(as.character(cash_out_raw$MONTH))
+
+################################################################################################################
+#WEEK.
+#Round dates to nearest Sunday.
+dates_df_cash_out_raw <- df_cash_out_raw[,50]
+result <- data.frame(dates_df_cash_out_raw,
+cut_Date=cut(as.Date(dates_df_cash_out_raw),"week", start.on.monday=FALSE),
+cut_POSIXt=cut(as.POSIXct(dates_df_cash_out_raw),"week",start.on.monday=FALSE),
+stringsAsFactors=FALSE) 
+df_cash_out_raw[,52] <- result[,3]
+
+dates_cash_out_daily_filtered_sort <- txn_date
+result_2 <- data.frame(dates_cash_out_daily_filtered_sort,
+cut_Date=cut(as.Date(dates_cash_out_daily_filtered_sort),"week", start.on.monday=FALSE),
+cut_POSIXt=cut(as.POSIXct(dates_cash_out_daily_filtered_sort),"week",start.on.monday=FALSE),
+stringsAsFactors=FALSE) 
+result_2_final <- result_2[,3]
+result_2_final <- result_2_final[-1954]
+
+
+#################################################################################################################
+#YEAR.
+df_cash_out_raw[,53] <- ifelse(year(df_cash_out_raw[,50])==2017,"FY1718","FY1819")
+year_daily <- ifelse(year(txn_date)==2017,"FY1718","FY1819")
+year_daily <- year_daily[-1954]
+
+#################################################################################################################
+#AGE.
+
+library(eeptools)
+age_daily <- age_calc(as.Date(DOB_date_2),as.Date('2018-08-03'),units='years')
+
+#################################################################################################################
+#Daily same size as template.
+
+final_1 <- cbind(cash_out_daily_filtered_sort,age_daily)
+
+final_2 <- cbind(final_1, txn_date)
+
+final_3 <- cbind(final_2, monthy)
+
+final_4 <- cbind(final_3, result_2_final)
+
+final_5 <- cbind(final_4, year_daily)
+
+final_6 <- cbind(final_5, test_user)
+
+final_7 <- final_6
+
+
+
+test_class <- rep("FALSE",54)
+
+for(i in 1:54){
+
+if(class(x[,i])==class(y[,i])){
+
+test_class[i] <- "TRUE"
+
+}
+}
+
+
+
+x <- df_cash_out_raw
+#y <- final_7
+
+y <- final_6
+
+#y[,2] <- realdate
+y[,3] <- as.logical(y[,3])
+y[,4] <- as.logical(y[,4])
+y[,7] <- as.logical(y[,7])
+y[,8] <- as.numeric(y[,8])
+#y[,10] <- as.character(y[,10])
+#y[,11] <- as.character(y[,11])
+#y[,12] <- as.numeric(y[,12])
+#y[,13] <- as.character(y[,13])
+#y[,14] <- as.numeric(y[,14])
+#y[,15] <- as.character(y[,15])
+#y[,16] <- as.numeric(y[,16])
+#y[,17] <- as.character(y[,17])
+#y[,18] <- as.numeric(y[,18])
+#y[,19] <- dmy_hms(final_7[,19],tz="UTC")
+#y[,21] <- as.numeric(y[,21])
+#y[,22] <- as.numeric(y[,22])
+#y[,23] <- as.numeric(y[,23])
+#y[,24] <- as.numeric(y[,24])
+#y[,27] <- as.numeric(y[,27])
+#y[,28] <- as.numeric(y[,28])
+#y[,29] <- as.numeric(y[,29])
+#y[,31] <- as.numeric(y[,31])
+y[,32] <- as.logical(y[,32])
+#y[,33] <- as.character(y[,33])
+#y[,34] <- as.character(y[,34])
+y[,35] <- as.logical(y[,35])
+#y[,36] <- as.character(y[,36])
+#y[,39] <- dmy_hms(final_7[,39],tz="UTC")
+#y[,40] <- dmy_hms(final_7[,40],tz="UTC")
+#y[,41] <- dmy_hms(final_7[,41],tz="UTC")
+#y[,42] <- as.character(y[,42])
+#y[,43] <- as.character(y[,43])
+#y[,44] <- as.character(y[,44])
+y[,45] <- as.logical(y[,45])
+#y[,46] <- as.character(y[,46])
+y[,47] <- as.logical(y[,47])
+y[,50] <- as.factor(y[,50])
+y[,51] <- as.integer(y[,51])
+y[,53] <- as.character(y[,53])
+#y[,54] <- as.character(y[,54])
+
+#y <- final_6
+
+###################################################################################################################
+#DONE testing.
+###################################################################################################################
+
+colnames(y) <- colnames(df_cash_out_raw)
+final_cash_out <- rbind(df_cash_out_raw,y)
+rownames(final_cash_out) <- c()
+
+write.csv(final_cash_out,"C:\\Users\\P1318124\\Downloads\\New_Cash_Out.csv")
