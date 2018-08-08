@@ -20,7 +20,7 @@ cash_out_raw <- read.csv("C:\\Users\\P1318124\\Downloads\\New_Cash_Out.csv",head
 
 #write.csv(cash_out_raw,"C:\\Users\\P1318124\\Downloads\\Cash Out Raw.csv")
 
-cash_out_daily <- read.csv("C:\\Users\\P1318124\\Desktop\\Remittance\\Daily Telepin Reports\\03 Aug\\RepResult.21.Daily_Report_CashOut.S.1.Daily_Report_for_Cash_Out_20180803000100.csv")
+cash_out_daily <- read.csv("C:\\Users\\P1318124\\Desktop\\Remittance\\Daily Telepin Reports\\04 Aug to 06 Aug\\RepResult.21.Daily_Report_CashOut.S.1.Daily_Report_for_Cash_Out_20180804000100.csv")
 
 dim(cash_out_raw)
 dim(cash_out_daily)
@@ -101,7 +101,7 @@ DOB_date_2 <- as.POSIXct(DOB_date, format="%Y-%m-%d",tz="UTC")
 
 ############################################################################################################
 #TRANSACTION DAY.
-txn_date <- dmy_hms(cash_out_daily_filtered_sort$TRANSACTION_DATE, format="%d-%m-%Y %H-%M-%S",tz="GMT")
+txn_date <- dmy_hm(cash_out_daily_filtered_sort$TRANSACTION_DATE, format="%d-%m-%Y %H-%M-%S",tz="GMT")
 txn_date <- txn_date[-(length(txn_date))]
 
 #Month
@@ -205,6 +205,7 @@ y[,3] <- as.logical(y[,3])
 y[,4] <- as.logical(y[,4])
 y[,7] <- as.logical(y[,7])
 y[,8] <- as.numeric(y[,8])
+y[,9] <- as.numeric(y[,9])
 #y[,10] <- as.character(y[,10])
 #y[,11] <- as.character(y[,11])
 #y[,12] <- as.numeric(y[,12])
@@ -228,6 +229,7 @@ y[,32] <- as.logical(y[,32])
 #y[,34] <- as.character(y[,34])
 y[,35] <- as.logical(y[,35])
 #y[,36] <- as.character(y[,36])
+y[,37] <- as.numeric(y[,37])
 #y[,39] <- dmy_hms(final_7[,39],tz="UTC")
 #y[,40] <- dmy_hms(final_7[,40],tz="UTC")
 #y[,41] <- dmy_hms(final_7[,41],tz="UTC")
