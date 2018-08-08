@@ -32,7 +32,7 @@ filter(BRAND_CATEGORY_NAME %in% c("SingTel mRemit" ,"SingTel Prepaid Top Up"))
 count(cash_out_daily_filtered,cash_out_daily_filtered$BRAND_CATEGORY_NAME)
 
 
-cash_out_daily_filtered_sort <- cash_out_daily_filtered[order(BRAND_CATEGORY_NAME),]
+cash_out_daily_filtered_sort <- cash_out_daily_filtered[order(cash_out_daily_filtered$BRAND_CATEGORY_NAME),]
 
 dim(cash_out_daily_filtered_sort)
 
@@ -71,7 +71,7 @@ monthy <- bla[,1]
 template_ref <- read_excel("C:\\Users\\P1318124\\Downloads\\Copy of 0.Template Remit and Prepaid Topup.xlsx","Ref")
 template_ref_vec <- as.vector(unlist(template_ref))
 test_user <- rep("NO", nrow(cash_out_daily_filtered_sort))
-for(i in 1:length(cash_out_daily_filtered_sort)){
+for(i in 1:nrow(cash_out_daily_filtered_sort)){
 if(is.element(cash_out_daily_filtered_sort$ACCOUNT_MSISDN[i],template_ref_vec)){
 test_user[i] <- "YES"
 }
@@ -87,11 +87,11 @@ head(cash_out_daily_filtered_sort$TRANSACTION_DATE)
 
 ############################################################################################################
 #TRANSACTION_DATE.
-date_cash_out_daily <- dmy_hms(cash_out_daily_filtered_sort$TRANSACTION_DATE,tz="UTC")
+date_cash_out_daily <- dmy_hm(cash_out_daily_filtered_sort$TRANSACTION_DATE,tz="UTC")
 
 ############################################################################################################
 #DOB.
-DOB_date <- dmy_hms(cash_out_daily_filtered_sort$DOB)
+DOB_date <- dmy_hm(cash_out_daily_filtered_sort$DOB)
 #DOB USE.
 DOB_date_2 <- as.POSIXct(DOB_date, format="%Y-%m-%d",tz="UTC")
 
@@ -101,8 +101,8 @@ DOB_date_2 <- as.POSIXct(DOB_date, format="%Y-%m-%d",tz="UTC")
 
 ############################################################################################################
 #TRANSACTION DAY.
-txn_date <- dmy_hms(cash_out_daily_filtered_sort$TRANSACTION_DATE, format="%d-%m-%Y %H-%M-%S",tz="GMT")
-txn_date <- txn_date[-1954]
+txn_date <- dmy_hm(cash_out_daily_filtered_sort$TRANSACTION_DATE, format="%d-%m-%Y %H-%M-%S",tz="GMT")
+txn_date <- txn_date[-(length(txn_date))]
 
 #Month
 #txn_month <- month(txn_date)
@@ -131,6 +131,10 @@ excel_numeric_to_date(as.character(cash_out_raw$MONTH))
 ################################################################################################################
 #WEEK.
 #Round dates to nearest Sunday.
+a <- as.Date(df_cash_out_raw[,50],format="%d/%m/%Y")
+b <- as.Date(df_cash_out_raw[,50],format="%Y-%m-%d")
+a[is.na(a)] <- b[!is.na(b)]
+df_cash_out_raw[,50] <- a
 dates_df_cash_out_raw <- df_cash_out_raw[,50]
 result <- data.frame(dates_df_cash_out_raw,
 cut_Date=cut(as.Date(dates_df_cash_out_raw),"week", start.on.monday=FALSE),
@@ -144,14 +148,14 @@ cut_Date=cut(as.Date(dates_cash_out_daily_filtered_sort),"week", start.on.monday
 cut_POSIXt=cut(as.POSIXct(dates_cash_out_daily_filtered_sort),"week",start.on.monday=FALSE),
 stringsAsFactors=FALSE) 
 result_2_final <- result_2[,3]
-result_2_final <- result_2_final[-1954]
+#result_2_final <- result_2_final[-1954]
 
 
 #################################################################################################################
 #YEAR.
 df_cash_out_raw[,53] <- ifelse(year(df_cash_out_raw[,50])==2017,"FY1718","FY1819")
 year_daily <- ifelse(year(txn_date)==2017,"FY1718","FY1819")
-year_daily <- year_daily[-1954]
+#year_daily <- year_daily[-1954]
 
 #################################################################################################################
 #AGE.
@@ -233,7 +237,7 @@ y[,35] <- as.logical(y[,35])
 y[,45] <- as.logical(y[,45])
 #y[,46] <- as.character(y[,46])
 y[,47] <- as.logical(y[,47])
-y[,50] <- as.factor(y[,50])
+y[,50] <- as.Date(y[,50])
 y[,51] <- as.integer(y[,51])
 y[,53] <- as.character(y[,53])
 #y[,54] <- as.character(y[,54])
