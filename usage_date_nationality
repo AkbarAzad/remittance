@@ -1,0 +1,48 @@
+x <- finalised_template
+x[,2] <- as.Date(x[,2])
+#aggregate(x[,28],by=x[,2],sum)
+
+#Remitted_Amount_SGD_Exclude_FX_Margin
+x_dates_sum <- aggregate(x[,28],by=list(x[,2]),sum)
+
+library(dplyr)
+
+x_mark <- x%>%
+filter(x[,29]=="Completion")
+
+x_date <- x_mark %>%
+filter(TRANSACTION.DATE.2 == "2018-08-07") %>%
+group_by(DESTINATION_COUNTRY) %>%
+summarise(sum_remitted_amount=format(round(sum(REMITTED_AMOUNT_EXCLUDE_FX_MRG),2),nsmall=2))
+
+df_x_date <- as.data.frame(x_date)
+
+x_month <- x_mark %>%
+filter(Month == 201706) %>%
+filter(TEST.USERS != "YES") %>%
+#group_by(DESTINATION_COUNTRY) %>%
+summarise(sum_remitted_amount=format(round(sum(REMITTED_AMOUNT_EXCLUDE_FX_MRG),2),nsmall=2))
+
+#*******************************************************************************************************************#
+#Pivot Table Remit Raw
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
+#Pivot 1.
+##FILTERS:
+##COLUMNS:
+##ROWS:
+##VALUES:
+
+x[,41] <- dmy(x[,41])
+
+x_pivot_1 <- x %>%
+filter(TRANSACTION_STATUS == "PST" | TRANSACTION_STATUS == "PST7") %>%
+filter(MARK == "Completion") %>%
+#filter(Month == 201807) %>%
+filter(TEST.USERS != "YES") %>%
+group_by(SERVICE_ORIGIN, DESTINATION_COUNTRY,TRANSACTION.DATE.2) %>%
+summarise(n())
+df_x_pivot_1 <- as.data.frame(x_pivot_1)
+
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
+#PIVOT 2.
+
