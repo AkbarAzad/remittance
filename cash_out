@@ -20,7 +20,7 @@ cash_out_raw <- read.csv("C:\\Users\\P1318124\\Downloads\\New_Cash_Out.csv",head
 
 #write.csv(cash_out_raw,"C:\\Users\\P1318124\\Downloads\\Cash Out Raw.csv")
 
-cash_out_daily <- read.csv("C:\\Users\\P1318124\\Desktop\\Remittance\\Daily Telepin Reports\\04 Aug to 06 Aug\\RepResult.21.Daily_Report_CashOut.S.1.Daily_Report_for_Cash_Out_20180806000100.csv")
+cash_out_daily <- read.csv("C:\\Users\\P1318124\\Desktop\\Remittance\\Daily Telepin Reports\\03 Aug\\RepResult.21.Daily_Report_CashOut.S.1.Daily_Report_for_Cash_Out_20180803000100.csv")
 
 dim(cash_out_raw)
 dim(cash_out_daily)
@@ -91,7 +91,7 @@ date_cash_out_daily <- dmy_hm(cash_out_daily_filtered_sort$TRANSACTION_DATE,tz="
 
 ############################################################################################################
 #DOB.
-DOB_date <- dmy_hm(cash_out_daily_filtered_sort$DOB)
+DOB_date <- dmy_hms(cash_out_daily_filtered_sort$DOB)
 #DOB USE.
 DOB_date_2 <- as.POSIXct(DOB_date, format="%Y-%m-%d",tz="UTC")
 
@@ -101,7 +101,7 @@ DOB_date_2 <- as.POSIXct(DOB_date, format="%Y-%m-%d",tz="UTC")
 
 ############################################################################################################
 #TRANSACTION DAY.
-txn_date <- dmy_hm(cash_out_daily_filtered_sort$TRANSACTION_DATE, format="%d-%m-%Y %H-%M-%S",tz="GMT")
+txn_date <- dmy_hms(cash_out_daily_filtered_sort$TRANSACTION_DATE, format="%d-%m-%Y %H-%M-%S",tz="GMT")
 txn_date <- txn_date[-(length(txn_date))]
 
 #Month
@@ -148,7 +148,7 @@ cut_Date=cut(as.Date(dates_cash_out_daily_filtered_sort),"week", start.on.monday
 cut_POSIXt=cut(as.POSIXct(dates_cash_out_daily_filtered_sort),"week",start.on.monday=FALSE),
 stringsAsFactors=FALSE) 
 result_2_final <- result_2[,3]
-#result_2_final <- result_2_final[-1954]
+#result_2_final <- result_2_final[-(length(result_2_final))]
 
 
 #################################################################################################################
