@@ -34,7 +34,7 @@ dim(template_remit_raw)
 #726265 40
 #rows=726265, columns=40
 
-daily_remit_natly <- read.csv("C:\\Users\\P1318124\\Desktop\\Remittance\\Daily Telepin Reports\\04 Aug to 06 Aug\\RepResult.4.Report_Remittance_Nationality.S.1.Daily_Report_Remittance_by_Nationality_20180806063000.csv",header=TRUE)
+daily_remit_natly <- read.csv("C:\\Users\\P1318124\\Desktop\\Remittance\\Daily Telepin Reports\\08 Aug\\RepResult.4.Report_Remittance_Nationality.S.1.Daily_Report_Remittance_by_Nationality_20180808063000.csv",header=TRUE)
 
 dim(daily_remit_natly)
 #2306 31
