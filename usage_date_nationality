@@ -32,7 +32,7 @@ summarise(sum_remitted_amount=format(round(sum(REMITTED_AMOUNT_EXCLUDE_FX_MRG),2
 ##ROWS:
 ##VALUES:
 
-x[,41] <- dmy(x[,41])
+#x[,41] <- dmy(x[,41])
 
 x_pivot_1 <- x %>%
 filter(TRANSACTION_STATUS == "PST" | TRANSACTION_STATUS == "PST7") %>%
@@ -45,4 +45,59 @@ df_x_pivot_1 <- as.data.frame(x_pivot_1)
 
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
 #PIVOT 2.
+#x[,41] <- dmy(x[,41])
+
+x_pivot_2 <- x %>%
+filter(TRANSACTION_STATUS == "PST" | TRANSACTION_STATUS == "PST7") %>%
+filter(MARK == "Completion") %>%
+#filter(Month == 201807) %>%
+filter(TEST.USERS != "YES") %>%
+group_by(SERVICE_ORIGIN, DESTINATION_COUNTRY,TRANSACTION.DATE.2) %>%
+summarise(sum_remitted_amount=format(round(sum(REMITTED_AMOUNT_EXCLUDE_FX_MRG),2),nsmall=2))
+df_x_pivot_2 <- as.data.frame(x_pivot_2)
+
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
+#PIVOT 3.
+#x[,41] <- dmy(x[,41])
+
+x_pivot_3 <- x %>%
+filter(TRANSACTION_STATUS == "PST" | TRANSACTION_STATUS == "PST7") %>%
+#filter(MARK == "Completion") %>%
+#filter(Month == 201807) %>%
+filter(TEST.USERS != "YES") %>%
+group_by(SERVICE_ORIGIN, DESTINATION_COUNTRY,TRANSACTION.DATE.2) %>%
+summarise(n())
+df_x_pivot_3 <- as.data.frame(x_pivot_3)
+
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
+#PIVOT 4.
+#x[,41] <- dmy(x[,41])
+
+x_pivot_4 <- x %>%
+filter(TRANSACTION_STATUS == "PST" | TRANSACTION_STATUS == "PST7") %>%
+#filter(MARK == "Completion") %>%
+#filter(Month == 201807) %>%
+filter(TEST.USERS != "YES") %>%
+group_by(SERVICE_ORIGIN, DESTINATION_COUNTRY,TRANSACTION.DATE.2) %>%
+summarise(sum_remitted_amount=format(round(sum(REMITTED_AMOUNT_EXCLUDE_FX_MRG),2),nsmall=2))
+df_x_pivot_4 <- as.data.frame(x_pivot_4)
+
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
+#PIVOT 5.
+#x[,41] <- dmy(x[,41])
+mcash <- read.csv("C:\\Users\\P1318124\\Downloads\\New_Cash_Out.csv",header=TRUE)
+x <- mcash
+
+x_pivot_5 <- x %>%
+filter(BRAND_CATEGORY_NAME == "SingTel mRemit" | BRAND_CATEGORY_NAME == "SingTel Prepaid Top Up") %>%
+filter(TRANSACTION_STATUS == "PST" | TRANSACTION_STATUS == "PST7") %>%
+#filter(MARK == "Completion") %>%
+#filter(Month == 201807) %>%
+filter(TEST.USERS != "YES") %>%
+group_by(CHANNEL,TRANSACTION_DAY) %>%
+summarise(n())
+df_x_pivot_5 <- as.data.frame(x_pivot_5)
+
+
+
 
