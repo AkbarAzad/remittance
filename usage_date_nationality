@@ -1,3 +1,6 @@
+install.packages("reshape2",repos="http://cran.us.r-project.org")
+library(reshape2)
+
 x <- finalised_template
 x[,2] <- as.Date(x[,2])
 #aggregate(x[,28],by=x[,2],sum)
@@ -113,5 +116,18 @@ filter(TEST.USERS != "YES") %>%
 group_by(CHANNEL,TRANSACTION_DAY) %>%
 summarise(sum_original_amount=format(round(sum(ORIGINAL_AMOUNT),2),nsmall=2))
 df_x_pivot_6 <- as.data.frame(x_pivot_6)
+
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
+#x_pivot_subset <- subset(x, BRAND_CATEGORY_NAME %in% c("SingTel mRemit","SingTel Prepaid Top Up") && TRANSACTION_STATUS %in% c("PST","PST7"))
+x_pivot_subset <- subset(x, BRAND_CATEGORY_NAME %in% c("SingTel mRemit","SingTel Prepaid Top Up") )
+x_pivot_subset <- subset(x_pivot_subset, TRANSACTION_STATUS %in% c("PST","PST7"))
+x_pivot_dcast <- dcast(x_pivot_subset, CHANNEL ~ TRANSACTION_DAY, value.var = "CHANNEL", fun.aggregate=length)
+write.csv(x_pivot_dcast, "C:\\Users\\P1318124\\Desktop\\Remittance\\Pivot_mCash.csv")
+
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
+x_pivot_subset <- subset(x, BRAND_CATEGORY_NAME %in% c("SingTel mRemit","SingTel Prepaid Top Up") )
+x_pivot_subset <- subset(x_pivot_subset, TRANSACTION_STATUS %in% c("PST","PST7"))
+x_pivot_dcast_month <- dcast(x_pivot_subset, CHANNEL ~ MONTH, value.var = "CHANNEL", fun.aggregate=length)
+write.csv(x_pivot_dcast_month, "C:\\Users\\P1318124\\Desktop\\Remittance\\Pivot_mCash_Month.csv")
 
 
