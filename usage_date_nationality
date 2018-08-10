@@ -114,7 +114,4 @@ group_by(CHANNEL,TRANSACTION_DAY) %>%
 summarise(sum_original_amount=format(round(sum(ORIGINAL_AMOUNT),2),nsmall=2))
 df_x_pivot_6 <- as.data.frame(x_pivot_6)
 
-x_pivot <- x %>%
-filter(TRANSACTION_DAY %in% c() %>%
-group_by(CHANNEL)
 
