@@ -98,6 +98,23 @@ group_by(CHANNEL,TRANSACTION_DAY) %>%
 summarise(n())
 df_x_pivot_5 <- as.data.frame(x_pivot_5)
 
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
+#PIVOT 6.
+#x[,41] <- dmy(x[,41])
+mcash <- read.csv("C:\\Users\\P1318124\\Downloads\\New_Cash_Out.csv",header=TRUE)
+x <- mcash
 
+x_pivot_6 <- x %>%
+filter(BRAND_CATEGORY_NAME == "SingTel mRemit" | BRAND_CATEGORY_NAME == "SingTel Prepaid Top Up") %>%
+filter(TRANSACTION_STATUS == "PST" | TRANSACTION_STATUS == "PST7") %>%
+#filter(MARK == "Completion") %>%
+#filter(Month == 201807) %>%
+filter(TEST.USERS != "YES") %>%
+group_by(CHANNEL,TRANSACTION_DAY) %>%
+summarise(sum_original_amount=format(round(sum(ORIGINAL_AMOUNT),2),nsmall=2))
+df_x_pivot_6 <- as.data.frame(x_pivot_6)
 
+x_pivot <- x %>%
+filter(TRANSACTION_DAY %in% c() %>%
+group_by(CHANNEL)
 
