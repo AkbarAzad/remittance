@@ -38,7 +38,7 @@ summarise(sum_remitted_amount=format(round(sum(REMITTED_AMOUNT_EXCLUDE_FX_MRG),2
 #x[,41] <- dmy(x[,41])
 
 x_pivot_1 <- x %>%
-filter(TRANSACTION_STATUS == "PST" | TRANSACTION_STATUS == "PST7") %>%
+filter(TRANSACTION_STATUS == "PST" | TRANSACTION_STATUS == "PST7" | TRANSACTION_STATUS == "PST9") %>%
 filter(MARK == "Completion") %>%
 #filter(Month == 201807) %>%
 filter(TEST.USERS != "YES") %>%
@@ -51,7 +51,7 @@ df_x_pivot_1 <- as.data.frame(x_pivot_1)
 #x[,41] <- dmy(x[,41])
 
 x_pivot_2 <- x %>%
-filter(TRANSACTION_STATUS == "PST" | TRANSACTION_STATUS == "PST7") %>%
+filter(TRANSACTION_STATUS == "PST" | TRANSACTION_STATUS == "PST7" | TRANSACTION_STATUS == "PST9") %>%
 filter(MARK == "Completion") %>%
 #filter(Month == 201807) %>%
 filter(TEST.USERS != "YES") %>%
@@ -64,7 +64,7 @@ df_x_pivot_2 <- as.data.frame(x_pivot_2)
 #x[,41] <- dmy(x[,41])
 
 x_pivot_3 <- x %>%
-filter(TRANSACTION_STATUS == "PST" | TRANSACTION_STATUS == "PST7") %>%
+filter(TRANSACTION_STATUS == "PST" | TRANSACTION_STATUS == "PST7"| TRANSACTION_STATUS == "PST9") %>%
 #filter(MARK == "Completion") %>%
 #filter(Month == 201807) %>%
 filter(TEST.USERS != "YES") %>%
@@ -77,7 +77,7 @@ df_x_pivot_3 <- as.data.frame(x_pivot_3)
 #x[,41] <- dmy(x[,41])
 
 x_pivot_4 <- x %>%
-filter(TRANSACTION_STATUS == "PST" | TRANSACTION_STATUS == "PST7") %>%
+filter(TRANSACTION_STATUS == "PST" | TRANSACTION_STATUS == "PST7"| TRANSACTION_STATUS == "PST9") %>%
 #filter(MARK == "Completion") %>%
 #filter(Month == 201807) %>%
 filter(TEST.USERS != "YES") %>%
@@ -93,7 +93,7 @@ x <- mcash
 
 x_pivot_5 <- x %>%
 filter(BRAND_CATEGORY_NAME == "SingTel mRemit" | BRAND_CATEGORY_NAME == "SingTel Prepaid Top Up") %>%
-filter(TRANSACTION_STATUS == "PST" | TRANSACTION_STATUS == "PST7") %>%
+filter(TRANSACTION_STATUS == "PST" | TRANSACTION_STATUS == "PST7"| TRANSACTION_STATUS == "PST9") %>%
 #filter(MARK == "Completion") %>%
 #filter(Month == 201807) %>%
 filter(TEST.USERS != "YES") %>%
@@ -109,7 +109,7 @@ x <- mcash
 
 x_pivot_6 <- x %>%
 filter(BRAND_CATEGORY_NAME == "SingTel mRemit" | BRAND_CATEGORY_NAME == "SingTel Prepaid Top Up") %>%
-filter(TRANSACTION_STATUS == "PST" | TRANSACTION_STATUS == "PST7") %>%
+filter(TRANSACTION_STATUS == "PST" | TRANSACTION_STATUS == "PST7"| TRANSACTION_STATUS == "PST9") %>%
 #filter(MARK == "Completion") %>%
 #filter(Month == 201807) %>%
 filter(TEST.USERS != "YES") %>%
