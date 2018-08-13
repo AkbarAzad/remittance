@@ -12,7 +12,7 @@ cash_out_raw <- read.csv("C:\\Users\\P1318124\\Downloads\\Revised_Cash_Out.csv",
 
 #cash_out_raw <- read.csv("C:\\Users\\P1318124\\Downloads\\Cash Out Raw.csv",header=TRUE)
 
-cash_out_daily <- read.csv("C:\\Users\\P1318124\\Desktop\\Remittance\\Daily Telepin Reports\\04 Aug to 06 Aug\\RepResult.21.Daily_Report_CashOut.S.1.Daily_Report_for_Cash_Out_20180806000100.csv",header=TRUE)
+cash_out_daily <- read.csv("C:\\Users\\P1318124\\Desktop\\Remittance\\Daily Telepin Reports\\07 Aug\\RepResult.21.Daily_Report_CashOut.S.1.Daily_Report_for_Cash_Out_20180807000100.csv",header=TRUE)
 
 #cash_out_daily <- read.csv("C:\\Users\\P1318124\\Desktop\\Remittance\\Daily Telepin Reports\\03 Aug\\RepResult.21.Daily_Report_CashOut.S.1.Daily_Report_for_Cash_Out_20180803000100.csv",header=TRUE)
 
@@ -80,8 +80,8 @@ x3[,47] <- as.integer(x3[,47])
 
 #AGE#
 
-#y2_age <- age_calc(as.Date(dmy_hms(y2$DOB)),as.Date(dmy_hms(y2$TRANSACTION_DATE)),units='years')
-y2_age <- age_calc(as.Date(dmy_hm(y2$DOB)),as.Date(dmy_hm(y2$TRANSACTION_DATE)),units='years')
+y2_age <- age_calc(as.Date(dmy_hms(y2$DOB)),as.Date(dmy_hms(y2$TRANSACTION_DATE)),units='years')
+#y2_age <- age_calc(as.Date(dmy_hm(y2$DOB)),as.Date(dmy_hm(y2$TRANSACTION_DATE)),units='years')
 y2_age <- as.integer(y2_age)
 #x3$AGE <- as.integer(x3$AGE)
 y3 <- cbind(y2,y2_age)
@@ -107,7 +107,7 @@ y5 <- cbind(y4,y2_m)
 
 #############################!!!!!!!MANUAL!!!!!!!###############################
 #WEEK#
-y2_week <- as.factor(rep("2017-08-05",nrow(y2)))
+y2_week <- as.factor(rep("2017-08-12",nrow(y2)))
 
 y6 <- cbind(y5,y2_week)
 
@@ -153,3 +153,4 @@ write.csv(final_cash_out,"C:\\Users\\P1318124\\Downloads\\Revised_Cash_Out.csv")
 #Updated till REPORT_DAY 04 AUG 2018#
 #Updated till REPORT_DAY 05 AUG 2018#
 #Updated till REPORT_DAY 06 AUG 2018#
+#Updated till REPORT_DAY 07 AUG 2018#
