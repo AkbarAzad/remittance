@@ -126,8 +126,29 @@ write.csv(x_pivot_dcast, "C:\\Users\\P1318124\\Desktop\\Remittance\\Pivot_mCash.
 
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
 x_pivot_subset <- subset(x, BRAND_CATEGORY_NAME %in% c("SingTel mRemit","SingTel Prepaid Top Up") )
-x_pivot_subset <- subset(x_pivot_subset, TRANSACTION_STATUS %in% c("PST","PST7"))
+x_pivot_subset <- subset(x_pivot_subset, TRANSACTION_STATUS %in% c("PST","PST7","PST9"))
+x_pivot_subset$MONTH[x_pivot_subset$MONTH==20187] <- 201807
+x_pivot_subset$MONTH[x_pivot_subset$MONTH==20188] <- 201808
 x_pivot_dcast_month <- dcast(x_pivot_subset, CHANNEL ~ MONTH, value.var = "CHANNEL", fun.aggregate=length)
+
+options(digits=16)
+
+x_pivot_subset_prepaid <- subset(x_pivot_subset, BRAND_CATEGORY_NAME =="SingTel Prepaid Top Up" )
+x_pivot_dcast_month_prepaid <- dcast(x_pivot_subset_prepaid, CHANNEL ~ MONTH, value.var = "CHANNEL", fun.aggregate=length)
+x_pivot_dcast_month_prepaid_sum <- dcast(x_pivot_subset_prepaid, CHANNEL ~ MONTH, value.var = "ORIGINAL_AMOUNT", fun.aggregate=sum)
 write.csv(x_pivot_dcast_month, "C:\\Users\\P1318124\\Desktop\\Remittance\\Pivot_mCash_Month.csv")
+write.csv(x_pivot_dcast_month_prepaid, "C:\\Users\\P1318124\\Desktop\\Remittance\\Pivot_mCash_Month_Prepaid.csv")
+write.csv(x_pivot_dcast_month_prepaid_sum, "C:\\Users\\P1318124\\Desktop\\Remittance\\Pivot_mCash_Month_Prepaid_Sum.csv")
+
+x_pivot_subset_mremit <- subset(x_pivot_subset, BRAND_CATEGORY_NAME =="SingTel mRemit" )
+x_pivot_dcast_month_mremit <- dcast(x_pivot_subset_mremit, CHANNEL ~ MONTH, value.var = "CHANNEL", fun.aggregate=length)
+x_pivot_dcast_month_mremit_sum <- dcast(x_pivot_subset_mremit, CHANNEL ~ MONTH, value.var = "ORIGINAL_AMOUNT", fun.aggregate=sum)
+write.csv(x_pivot_dcast_month_mremit, "C:\\Users\\P1318124\\Desktop\\Remittance\\Pivot_mCash_Month_mRemit.csv")
+write.csv(x_pivot_dcast_month_mremit_sum, "C:\\Users\\P1318124\\Desktop\\Remittance\\Pivot_mCash_Month_mRemit_Sum.csv")
+
+
+
+
+
 
 
