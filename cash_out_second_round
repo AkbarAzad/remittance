@@ -1,0 +1,152 @@
+library(janitor)
+library(jsonlite)
+library(openxlsx)
+library(xlsx)
+library(tidyverse)
+library(lubridate)
+library(eeptools)
+library(XLConnect)
+library(readxl)
+
+cash_out_raw <- read.csv("C:\\Users\\P1318124\\Downloads\\Revised_Cash_Out.csv",header=TRUE)
+
+#cash_out_raw <- read.csv("C:\\Users\\P1318124\\Downloads\\Cash Out Raw.csv",header=TRUE)
+
+cash_out_daily <- read.csv("C:\\Users\\P1318124\\Desktop\\Remittance\\Daily Telepin Reports\\04 Aug to 06 Aug\\RepResult.21.Daily_Report_CashOut.S.1.Daily_Report_for_Cash_Out_20180804000100.csv",header=TRUE)
+
+#cash_out_daily <- read.csv("C:\\Users\\P1318124\\Desktop\\Remittance\\Daily Telepin Reports\\03 Aug\\RepResult.21.Daily_Report_CashOut.S.1.Daily_Report_for_Cash_Out_20180803000100.csv",header=TRUE)
+
+cash_out_daily_filtered <- cash_out_daily %>%
+filter(BRAND_CATEGORY_NAME %in% c("SingTel mRemit","SingTel Prepaid Top Up"))
+
+dim(cash_out_daily_filtered) #1953 48.
+dim(cash_out_raw) #714701 56.
+
+table(cash_out_daily_filtered$BRAND_CATEGORY_NAME)
+
+cash_out_daily_filtered_sort <- cash_out_daily_filtered[order(cash_out_daily_filtered$BRAND_CATEGORY_NAME),]
+
+#cash_out_raw_54 <- cash_out_raw[,-c(1,2)]
+
+#test_class <- rep("FALSE",48)
+#for(i in 1:48){
+#if(class(cash_out_daily_filtered_sort[,i])==class(cash_out_raw_54[,i])){
+#test_class[i] <- "TRUE"
+#}
+#}
+
+#x <- cash_out_raw_54
+#y <- cash_out_daily_filtered_sort
+
+#y[,3] <- as.logical(y[,3])
+#x[,4] <- as.factor(x[,4])
+#x[,7] <- as.factor(x[,7])
+#y[,8] <- as.numeric(y[,8])
+#x[,32] <- as.factor(x[,32])
+#x[,35] <- as.factor(x[,35])
+
+#45
+#47
+#cash_out_ori <- read_excel("C:\\Users\\P1318124\\Downloads\\0. Template Remit and Prepaid Topup (1).xlsx","Cash out raw")
+#write.csv(cash_out_ori,"C:\\Users\\P1318124\\Downloads\\Cash_Out_Original.csv")
+#cash_out_ori <- read.csv("C:\\Users\\P1318124\\Downloads\\Cash_Out_Original.csv",header=TRUE)
+#dim(cash_out_ori) #712748 57.
+
+x2 <- cash_out_raw
+#x2 <- cash_out_ori
+y2 <- cash_out_daily_filtered_sort
+
+x3 <- x2[,-1]
+
+
+test_class <- rep("FALSE",48)
+for(i in 1:48){
+if(class(y2[,i])==class(x3[,i])){
+test_class[i] <- "TRUE"
+}
+}
+
+y2[,3] <- as.logical(y2[,3])
+x3[,4] <- as.factor(x3[,4])
+x3[,7] <- as.factor(x3[,7])
+y2[,8] <- as.numeric(y2[,8])
+x3[,32] <- as.factor(x3[,32])
+x3[,35] <- as.factor(x3[,35])
+x3[,45] <- as.factor(x3[,45])
+x3[,47] <- as.integer(x3[,47])
+
+###############################
+
+#AGE#
+
+#y2_age <- age_calc(as.Date(dmy_hms(y2$DOB)),as.Date(dmy_hms(y2$TRANSACTION_DATE)),units='years')
+#y2_age <- age_calc(as.Date(dmy_hm(y2$DOB)),as.Date(dmy_hm(y2$TRANSACTION_DATE)),units='years')
+y2_age <- as.integer(y2_age)
+#x3$AGE <- as.integer(x3$AGE)
+y3 <- cbind(y2,y2_age)
+
+###############################
+#TRANSACTION_DAY#
+
+y2_txnday <- as.factor(substr(y2$TRANSACTION_DATE,1,10))
+
+y4 <- cbind(y3,y2_txnday)
+
+##############################
+#MONTH#
+y2_date <- as.POSIXct(y2$TRANSACTION_DATE,format='%d/%m/%Y',tz="UTC")
+y2_year <- year(y2_date)
+y2_month <- month(y2_date)
+y2_ym <- data.frame(y2_year,y2_month) %>%
+unite(x,c(y2_year,y2_month),sep="",remove=FALSE)
+y2_m <- y2_ym[,1]
+y2_m <- as.integer(y2_m)
+
+y5 <- cbind(y4,y2_m)
+
+#############################!!!!!!!MANUAL!!!!!!!###############################
+#WEEK#
+y2_week <- as.factor(rep("2017-08-05",nrow(y2)))
+
+y6 <- cbind(y5,y2_week)
+
+##############################!!!!!!!MANUAL!!!!!!!###############################
+#YEAR#
+y2_fy <- as.factor(rep("FY1718",nrow(y2)))
+
+y7 <- cbind(y6,y2_fy)
+
+#############################
+
+template_ref <- read_excel("C:\\Users\\P1318124\\Downloads\\Copy of 0.Template Remit and Prepaid Topup.xlsx","Ref")
+template_ref_vec <- as.vector(unlist(template_ref))
+y2_test_user <- rep("NO",nrow(y2))
+for(i in 1:nrow(y2)){
+if(is.element(y2$ACCOUNT_MSISDN[i],template_ref_vec)){
+y2_test_user[i] <- "YES"
+}
+}
+
+y2_test_user <- as.factor(y2_test_user)
+
+y8 <- cbind(y7,y2_test_user)
+
+############################
+
+test_class <- rep("FALSE",54)
+for(i in 1:54){
+if(class(y8[,i])==class(x3[,i])){
+test_class[i] <- "TRUE"
+}
+}
+
+y9 <- y8
+colnames(y9) <- colnames(x3)
+
+final_cash_out <- rbind(x3,y9)
+
+
+write.csv(final_cash_out,"C:\\Users\\P1318124\\Downloads\\Revised_Cash_Out.csv")
+
+#Updated till REPORT_DAY 03 AUG 2018#
+#Updated till REPORT_DAY 04 AUG 2018#
