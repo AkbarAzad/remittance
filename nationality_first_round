@@ -1,0 +1,169 @@
+install.packages("epitools", repos="http://cran.us.r-project.org")
+library(XLConnect)
+library(readxl)
+library(xlsx)
+library(dplyr)
+library(tidyverse)
+library(reshape2)
+library(lubridate)
+library(epitools)
+library(eeptools)
+
+#natly <- read_excel("C:\\Users\\P1318124\\Downloads\\0. Template Remit and Prepaid Topup (1).xlsx","Remit raw")
+
+natly <- read.csv("C:\\Users\\P1318124\\Downloads\\Nationality_Original.csv",header=TRUE)
+
+natly_day <- read.csv("C:\\Users\\P1318124\\Desktop\\Remittance\\Daily Telepin Reports\\03 Aug\\RepResult.4.Report_Remittance_Nationality.S.1.Daily_Report_Remittance_by_Nationality_20180803063000.csv",header=TRUE)
+
+dim(natly)#726265     41
+dim(natly_day) #2306   31
+
+
+natly_rev <- natly[,-1]
+dim(natly_rev) #726265     40
+
+test_class <- rep("FALSE",ncol(natly_day))
+for(i in 1:ncol(natly_day)){
+if(class(natly_day[,i])==class(natly_rev[,i])){
+test_class[i] <- "TRUE"
+}
+}
+test_class
+
+length(test_class[test_class=="TRUE"]) #27
+length(test_class[test_class!="TRUE"]) #4
+
+x <- natly_rev
+y <- natly_day
+
+##########################################
+#Dealing with unmatching classes: Round 1#
+
+#Column 3#
+class(x[,3])
+head(x[,3])
+
+class(y[,3])
+head(y[,3])
+head(as.numeric(y[,3]))
+
+y[,3] <- as.numeric(y[,3])
+
+#Column 20#
+class(x[,20])
+head(x[,20])
+
+class(y[,20])
+head(y[,20])
+head(as.numeric(y[,20]))
+
+y[,20] <- as.numeric(y[,20])
+
+#Column 27#
+class(x[,27])
+head(x[,27])
+
+class(y[,27])
+head(y[,27])
+head(as.numeric(y[,27]))
+
+y[,27] <- as.numeric(y[,27])
+
+#Column 31#
+class(x[,31])
+head(x[,31])
+
+class(y[,31])
+head(y[,31])
+#head(as.numeric(y[,31]))
+#head(as.numeric(levels(y[,31])[y[,31]]))
+#head(as.numeric(as.character(y[,31]))) #cannot use numeric as data in y[,31] contains characters eg 'TS001..'.
+head(as.character(x[,31]))
+head(as.character(y[,31]))
+
+#y[,31] <- as.numeric(y[,31])
+y[,31] <- as.character(y[,31])
+x[,31] <- as.character(x[,31])
+
+################################################################################################################
+
+test_class <- rep("FALSE",ncol(y))
+for(i in 1:ncol(y)){
+if(class(y[,i])==class(x[,i])){
+test_class[i] <- "TRUE"
+}
+}
+test_class
+
+length(test_class[test_class=="TRUE"]) #31
+length(test_class[test_class!="TRUE"]) #0
+
+################################################################################################################
+
+#MONTH#
+
+class(x$Month)
+
+y[,2] <- as.factor(as.POSIXct(dmy_hms(y[,2]),format="%Y-%m-%d %H:%M:%S"))
+#y_date <- as.POSIXct(y$TRANSACTION_DATE,format='%d/%m/%Y',tz="UTC")
+y_year <- year(y[,2])
+y_month <- month(y[,2])
+y_ym <- data.frame(y_year,y_month) %>%
+unite(k,c(y_year,y_month),sep="",remove=FALSE)
+y_m <- y_ym[,1]
+y_m <- as.integer(y_m)
+
+y2 <- cbind(y,y_m)
+
+x_year <- year(x[,2])
+x_month <- month(x[,2])
+x_ym <- data.frame(x_year,x_month) %>%
+unite(k,c(x_year,x_month),sep="",remove=FALSE)
+x_m <- x_ym[,1]
+x_m <- as.integer(x_m)
+x[,32] <- x_m
+
+################################################################################################################
+
+#DAY#
+
+y_date <- as.POSIXct(y[,2],format='%Y-%m-%d %H:%M:%S')
+y_weekday <- weekdays(as.POSIXct(y[,2],format='%Y-%m-%d %H:%M:%S'))
+x_weekday <- weekdays(as.POSIXct(x[,2],format='%Y-%m-%d %H:%M:%S'))
+x[,33] <- as.factor(x_weekday)
+y_weekday <- as.factor(y_weekday)
+
+y3 <- cbind(y2,y_weekday)
+
+###############################################################################################################
+
+
+
+txn_fee <- df_daily_remit_natly$TRANSACTION_FEE_SGD
+
+for(i in 1:nrow(df_daily_remit_natly)){
+
+if(df_daily_remit_natly$TRANSACTION_FEE_SGD[i] < 0){
+
+txn_fee[i] <- (df_daily_remit_natly$TRANSACTION_FEE_SGD[i])/(-1.)
+
+}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
