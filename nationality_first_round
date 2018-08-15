@@ -166,3 +166,49 @@ y5 <- cbind(y4,fx_margin)
 
 ###########################################################################################################
 
+#a <- as.Date(x[,2])
+#b <- as.Date(df_cash_out_raw[,50],format="%Y-%m-%d")
+#a[is.na(a)] <- b[!is.na(b)]
+#df_cash_out_raw[,50] <- a
+#dates_df_cash_out_raw <- df_cash_out_raw[,50]
+#result <- data.frame(dates_df_cash_out_raw,
+#cut_Date=cut(as.Date(dates_df_cash_out_raw),"week", start.on.monday=FALSE),
+#cut_POSIXt=cut(as.POSIXct(dates_df_cash_out_raw),"week",start.on.monday=FALSE),
+#stringsAsFactors=FALSE) 
+#df_cash_out_raw[,52] <- result[,3]
+
+#dates_cash_out_daily_filtered_sort <- txn_date
+y_week <- data.frame(y[,2],
+cut_Date=cut(as.Date(y[,2]),"week", start.on.monday=FALSE),
+cut_POSIXt=cut(as.POSIXct(y[,2]),"week",start.on.monday=FALSE),
+stringsAsFactors=FALSE) 
+y_week_final <- y_week[,3]
+#result_2_final <- result_2_final[-(length(result_2_final))]
+
+x_week <- data.frame(x[,2],
+cut_Date=cut(as.Date(x[,2]),"week", start.on.monday=FALSE),
+cut_POSIXt=cut(as.POSIXct(x[,2]),"week",start.on.monday=FALSE),
+stringsAsFactors=FALSE) 
+x_week_final <- x_week[,3]
+x[,36] <- x_week_final
+
+y6 <- cbind(y5,y_week_final)
+
+##########################################################################################################
+
+#FY#
+
+y_fy <- rep("FY1819",nrow(y))
+y_fy <- as.factor(y_fy)
+
+x_fy <- rep("FY1718",nrow(x))
+
+for(i in 1:length(x_fy)){
+if(as.character(x[,2][i])>="2018-04-01"){
+x_fy[i] <- "FY1819"
+}
+}
+
+x$FY <- as.factor(x_fy)
+
+#########################################################################################################
