@@ -198,7 +198,7 @@ y6 <- cbind(y5,y_week_final)
 
 #FY#
 
-y_fy <- rep("FY1819",nrow(y))
+y_fy <- rep("FY1819",nrow(y)) ###########MANUAL###########
 y_fy <- as.factor(y_fy)
 
 x_fy <- rep("FY1718",nrow(x))
@@ -211,4 +211,75 @@ x_fy[i] <- "FY1819"
 
 x$FY <- as.factor(x_fy)
 
+y7 <- cbind(y6,y_fy)
+
 #########################################################################################################
+
+#TEST.USERS#
+6583381170
+6597727199
+6596510899
+
+test.users_vec <- c(6583381170,6597727199,6596510899)
+
+y_test.users <- rep("NO",nrow(y))
+
+for(i in 1:nrow(y)){
+if(as.character(y$SOURCE_MSISDN)[i] %in% c('6583381170','6597727199','6596510899')){
+y_test.users[i] <- "YES"
+}
+}
+
+y_test.users <- as.factor(y_test.users)
+
+x_test.users <- rep("NO",nrow(x))
+
+for(i in 1:nrow(x)){
+if(as.character(x$SOURCE_MSISDN)[i] %in% c('6583381170','6597727199','6596510899')){
+x_test.users[i] <- "YES"
+}
+}
+
+#x_test <- x %>%
+#filter(as.character(SOURCE_MSISDN) %in% c('6583381170','6597727199','6596510899'),as.character(TEST.USERS) == "NO")
+
+y8 <- cbind(y7,y_test.users)
+
+##########################################################################################################
+
+#MSISDN...MARK#
+
+y_msisdn_mark <- as.factor(paste(y$SOURCE_MSISDN,y$MARK,sep="",collapse=NULL))
+
+y9 <- cbind(y8,y_msisdn_mark)
+
+##########################################################################################################
+
+#TRANSACTION.DATE.2#
+
+y_txn_date_2 <- as.factor(substr(y[,2],1,10))
+
+y10 <- cbind(y9,y_txn_date_2)
+
+##########################################################################################################
+
+#TESTING ROUND 2#
+
+test_class <- rep("FALSE",ncol(y10))
+for(i in 1:ncol(y10)){
+if(class(y10[,i])==class(x[,i])){
+test_class[i] <- "TRUE"
+}
+}
+test_class
+
+##########################################################################################################
+
+colnames(y10) <- colnames(x)
+
+final_natly <- rbind(x,y10)
+
+write.csv(final_natly,"C:\\Users\\P1318124\\Downloads\\Revised_Nationality.csv")
+
+
+#UPDATED TILL REPORTING DAY 03 AUG 2018#
