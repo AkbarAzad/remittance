@@ -1,4 +1,3 @@
-#install.packages("epitools", repos="http://cran.us.r-project.org")
 library(XLConnect)
 library(readxl)
 library(xlsx)
@@ -16,7 +15,7 @@ natly <- read.csv("C:\\Users\\P1318124\\Downloads\\Revised_Nationality.csv",head
 #natly2 <- read.csv("C:\\Users\\P1318124\\Downloads\\Nationality_Original.csv",header=TRUE)
 
 
-natly_day <- read.csv("C:\\Users\\P1318124\\Desktop\\Remittance\\Daily Telepin Reports\\04 Aug to 06 Aug\\RepResult.4.Report_Remittance_Nationality.S.1.Daily_Report_Remittance_by_Nationality_20180804063000.csv",header=TRUE)
+natly_day <- read.csv("C:\\Users\\P1318124\\Desktop\\Remittance\\Daily Telepin Reports\\04 Aug to 06 Aug\\RepResult.4.Report_Remittance_Nationality.S.1.Daily_Report_Remittance_by_Nationality_20180805063000.csv",header=TRUE)
 
 dim(natly)#726265     41
 dim(natly_day) #2306   31
@@ -161,7 +160,7 @@ fx_margin <- y$FX_MARGIN_SGD
 
 for(i in 1:nrow(y)){
 
-if(y$FX_MARGIN_SGD < 0){
+if(y$FX_MARGIN_SGD[i] < 0){
 
 fx_margin[i] <- fx_margin[i]*(-1)
 
@@ -172,17 +171,17 @@ y5 <- cbind(y4,fx_margin)
 
 
 x_fx_margin <- x$FX_MARGIN_SGD_NEGATIVE
-for(i in 1:nrow(x)){
-if(x$FX_MARGIN_SGD_NEGATIVE < 0){
-x_fx_margin[i] <- x_fx_margin[i]*(-1)
-}
-}
+#for(i in 1:nrow(x)){
+#if(x$FX_MARGIN_SGD_NEGATIVE < 0){
+#x_fx_margin[i] <- x_fx_margin[i]*(-1)
+#}
+#}
 
-#x_fx <-lapply(x_fx_margin, function(p) if(p<0){ p<- p*(-1)} else{p <- p})
+x_fx <-lapply(x_fx_margin, function(p) if(p<0){ p<- p*(-1)} else{p <- p})
 
-#x_fx <- unlist(x_fx)
+x_fx <- unlist(x_fx)
 
-#x[,35] <- x_fx_margin
+x[,35] <- x_fx_margin
 
 
 
@@ -322,3 +321,4 @@ write.csv(final_natly,"C:\\Users\\P1318124\\Downloads\\Revised_Nationality.csv")
 
 #UPDATED TILL REPORTING DAY 03 AUG 2018#
 #UPDATED TILL REPORTING DAY 04 AUG 2018#
+#UPDATED TILL REPORTING DAY 05 AUG 2018#
