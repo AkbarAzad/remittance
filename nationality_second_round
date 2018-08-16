@@ -1,3 +1,4 @@
+#install.packages("epitools", repos="http://cran.us.r-project.org")
 library(XLConnect)
 library(readxl)
 library(xlsx)
@@ -15,7 +16,7 @@ natly <- read.csv("C:\\Users\\P1318124\\Downloads\\Revised_Nationality.csv",head
 #natly2 <- read.csv("C:\\Users\\P1318124\\Downloads\\Nationality_Original.csv",header=TRUE)
 
 
-natly_day <- read.csv("C:\\Users\\P1318124\\Desktop\\Remittance\\Daily Telepin Reports\\04 Aug to 06 Aug\\RepResult.4.Report_Remittance_Nationality.S.1.Daily_Report_Remittance_by_Nationality_20180805063000.csv",header=TRUE)
+natly_day <- read.csv("C:\\Users\\P1318124\\Desktop\\Remittance\\Daily Telepin Reports\\11 Aug to 13 Aug\\RepResult.4.Report_Remittance_Nationality.S.1.Daily_Report_Remittance_by_Nationality_20180811063000.csv",header=TRUE)
 
 dim(natly)#726265     41
 dim(natly_day) #2306   31
@@ -322,3 +323,9 @@ write.csv(final_natly,"C:\\Users\\P1318124\\Downloads\\Revised_Nationality.csv")
 #UPDATED TILL REPORTING DAY 03 AUG 2018#
 #UPDATED TILL REPORTING DAY 04 AUG 2018#
 #UPDATED TILL REPORTING DAY 05 AUG 2018#
+#UPDATED TILL REPORTING DAY 06 AUG 2018#
+#UPDATED TILL REPORTING DAY 07 AUG 2018#
+#UPDATED TILL REPORTING DAY 08 AUG 2018#
+#UPDATED TILL REPORTING DAY 09 AUG 2018#
+#UPDATED TILL REPORTING DAY 10 AUG 2018#
+#UPDATED TILL REPORTING DAY 11 AUG 2018#
