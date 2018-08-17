@@ -12,7 +12,7 @@ cash_out_raw <- read.csv("C:\\Users\\P1318124\\Downloads\\Revised_Cash_Out.csv",
 
 #cash_out_raw <- read.csv("C:\\Users\\P1318124\\Downloads\\Cash Out Raw.csv",header=TRUE)
 
-cash_out_daily <- read.csv("C:\\Users\\P1318124\\Desktop\\Remittance\\Daily Telepin Reports\\11 Aug to 13 Aug\\RepResult.21.Daily_Report_CashOut.S.1.Daily_Report_for_Cash_Out_20180813000100.csv",header=TRUE)
+cash_out_daily <- read.csv("C:\\Users\\P1318124\\Desktop\\Remittance\\Daily Telepin Reports\\17 Aug\\RepResult.21.Daily_Report_CashOut.S.1.Daily_Report_for_Cash_Out_20180817000100.csv",header=TRUE)
 
 #cash_out_daily <- read.csv("C:\\Users\\P1318124\\Desktop\\Remittance\\Daily Telepin Reports\\03 Aug\\RepResult.21.Daily_Report_CashOut.S.1.Daily_Report_for_Cash_Out_20180803000100.csv",header=TRUE)
 
@@ -107,7 +107,7 @@ y5 <- cbind(y4,y2_m)
 
 #############################!!!!!!!MANUAL!!!!!!!###############################
 #WEEK#
-y2_week <- as.factor(rep("2017-08-12",nrow(y2)))
+y2_week <- as.factor(rep("2018-08-12",nrow(y2)))
 
 y6 <- cbind(y5,y2_week)
 
@@ -146,6 +146,24 @@ colnames(y9) <- colnames(x3)
 
 final_cash_out <- rbind(x3,y9)
 
+################################################
+###############################################
+##############################################
+#############################################
+############################################
+###########################################
+##########################################
+#########################################
+########################################
+#######################################
+######################################
+#####################################
+####################################
+###################################
+##################################
+#################################
+################################
+
 
 write.csv(final_cash_out,"C:\\Users\\P1318124\\Downloads\\Revised_Cash_Out.csv")
 
@@ -160,5 +178,7 @@ write.csv(final_cash_out,"C:\\Users\\P1318124\\Downloads\\Revised_Cash_Out.csv")
 #Updated till REPORT_DAY 11 AUG 2018#
 #Updated till REPORT_DAY 12 AUG 2018#
 #Updated till REPORT_DAY 13 AUG 2018#
-
-
+#Updated till REPORT_DAY 14 AUG 2018#
+#Updated till REPORT_DAY 15 AUG 2018#
+#Updated till REPORT_DAY 16 AUG 2018#
+#Updated till REPORT_DAY 17 AUG 2018#
