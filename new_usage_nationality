@@ -1,0 +1,119 @@
+library(openxlsx)
+library(readxl)
+library(XLConnect)
+library(xlsx)
+library(dplyr)
+library(tidyverse)
+
+final_natly
+
+
+#create a blank workbook, i.e. in xlsx format.
+#Daily_Report_Remittance <- createWorkbook("C:\\Users\\P1318124\\Desktop\\Remittance\\Daily_Report_Remittance.xlsx")
+
+#save workbook.
+#saveWorkbook(Daily_Report_Remittance,file="C:\\Users\\P1318124\\Desktop\\Remittance\\Daily_Report_Remittance.xlsx")
+
+#load workbook.
+Daily_Report_Remittance <- loadWorkbook("C:\\Users\\P1318124\\Desktop\\Remittance\\Daily_Report_Remittance.xlsx")
+
+
+#add empty worksheets to the created blank workbook.
+#addWorksheet(Daily_Report_Remittance,"Daily-Nationality")
+#addWorksheet(Daily_Report_Remittance,"Weekly-Nationality")
+#addWorksheet(Daily_Report_Remittance,"Monthly_Nationality")
+#addWorksheet(Daily_Report_Remittance,"Daily-Cash Out")
+#addWorksheet(Daily_Report_Remittance,"Weekly-Cash Out")
+#addWorksheet(Daily_Report_Remittance,"Monthly-Cash Out")
+
+
+x <- final_natly
+
+x_pivot <- x %>%
+filter(TRANSACTION_STATUS == "PST" | TRANSACTION_STATUS == "PST7"| TRANSACTION_STATUS == "PST9") %>%
+filter(MARK == "Completion") %>%
+filter(TEST.USERS != "YES") 
+
+x_pivot_China <- x_pivot %>%
+filter(SERVICE_CLASS_NAME %like% "China")%>%
+group_by(WEEK,TRANSACTION.DATE.2) %>%
+summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_SGD),2),nsmall=2))
+x_pivot_China$country <- rep("China",nrow(x_pivot_China))
+
+x_pivot_India <- x_pivot %>%
+filter(SERVICE_CLASS_NAME %like% "India")%>%
+group_by(WEEK,TRANSACTION.DATE.2) %>%
+summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_SGD),2),nsmall=2))
+x_pivot_India$country <- rep("India",nrow(x_pivot_India))
+
+
+x_pivot_Ph <- x_pivot %>%
+filter(SERVICE_CLASS_NAME %like% "Philippines" | SERVICE_CLASS_NAME %like% "GCash") %>%
+group_by(WEEK,TRANSACTION.DATE.2) %>%
+summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_SGD),2),nsmall=2))
+x_pivot_Ph$country <- rep("Philippines",nrow(x_pivot_Ph))
+
+x_pivot_Bg <- x_pivot %>%
+filter(SERVICE_CLASS_NAME %like% "bCash")%>%
+group_by(WEEK,TRANSACTION.DATE.2) %>%
+summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_SGD),2),nsmall=2))
+x_pivot_Bg$country <- rep("Bangladesh",nrow(x_pivot_Bg))
+
+x_pivot_Indon <- x_pivot %>%
+filter(SERVICE_CLASS_NAME %like% "Indonesia"| SERVICE_CLASS_NAME %like% "Telkomsel") %>%
+group_by(WEEK,TRANSACTION.DATE.2) %>%
+summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_SGD),2),nsmall=2))
+x_pivot_Indon$country <- rep("Indonesia",nrow(x_pivot_Indon))
+
+x_piv <- rbind(x_pivot_Ph,x_pivot_Indon,x_pivot_China,x_pivot_India,x_pivot_Bg)
+
+#x_piv_f <- x_piv %>%
+#filter(as.Date(TRANSACTION.DATE.2,format="%Y-%m-%d") >= as.Date("2018-04-01",format="%Y-%m-%d")) %>%
+#group_by(country,TRANSACTION.DATE.2) %>%
+#summarise(remit_sums = format(round(sum(remit_sum),2),nsmall=2))
+
+#x_piv_f <- dcast(x_piv, country ~ as.POSIXct(TRANSACTION.DATE.2,format="%Y-%m-%d"), value.var = "remit_sum", fun.aggregate=sum)
+
+x_piv$TRANSACTION.DATE.2 <- as.Date(x_piv$TRANSACTION.DATE.2,format="%Y-%m-%d")
+x_piv$remit_sum <- as.numeric(x_piv$remit_sum)
+x_piv$TRANSACTION.DATE.2 <- as.Date(x_piv$WEEK,format="%Y-%m-%d")
+
+#x_piv_aug <- subset(x_piv, TRANSACTION.DATE.2>="2018-08-01")
+
+x_piv_f <- dcast(x_piv, country ~ TRANSACTION.DATE.2, value.var = "remit_sum", fun.aggregate=sum)
+
+#write.csv(x_piv_f,"C:\\Users\\P1318124\\Desktop\\Remittance\\New_Usage_Nationality_Aug.csv")
+
+
+x_week_f <- x_piv %>%
+filter(as.Date(TRANSACTION.DATE.2,format="%Y-%m-%d") >= as.Date("2018-04-01",format="%Y-%m-%d")) %>%
+group_by(country,WEEK) %>%
+summarise(remit_sums = format(round(sum(remit_sum),2),nsmall=2))
+
+x_week_f <- dcast(x_piv, country ~ WEEK, value.var = "remit_sum", fun.aggregate=sum)
+
+#x_week_fy1819 <- subset(x_piv, TRANSACTION.DATE.2>="2018-08-01")
+
+
+#write datasets into workbook into speci
+#writeData(OUT, sheet="Daily-Nationality", x=x_piv_f)
+#writeData(OUT, sheet="Weekly-Nationality", x=x_week_f)
+#writeData(OUT, sheet="Monthly-Nationality", x=x_month_f)
+#writeData(OUT, sheet="Daily-Cash Out", x=y_piv_f)
+#writeData(OUT, sheet="Weekly-Cash Out", x=y_week_f)
+#writeData(OUT, sheet="Monthly-Cash Out", x=y_month_f)
+
+write.xlsx(x_piv_f,file="C:\\Users\\P1318124\\Desktop\\Remittance\\Daily_Report_Remittance.xlsx",sheetName="Daily-Nationality",append=TRUE)
+write.xlsx(x_week_f,file="C:\\Users\\P1318124\\Desktop\\Remittance\\Daily_Report_Remittance.xlsx",sheetName="Weekly-Nationality",append=TRUE)
+
+
+
+
+
+
+
+
+
+
+
+
