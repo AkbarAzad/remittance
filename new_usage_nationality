@@ -49,6 +49,20 @@ group_by(WEEK,TRANSACTION.DATE.2) %>%
 summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_SGD),2),nsmall=2),count=n())
 x_pivot_Indon$country <- rep("Indonesia",nrow(x_pivot_Indon))
 
+
+#x_pivot_others <- x_pivot %>%
+#filter(!SERVICE_CLASS_NAME  %like% "Indonesia" & !SERVICE_CLASS_NAME %like% "Telkomsel" & !SERVICE_CLASS_NAME %like% "China" & !SERVICE_CLASS_NAME %like% "India"
+#& !SERVICE_CLASS_NAME %like% "Philippines" & !SERVICE_CLASS_NAME %like% "GCash" & !SERVICE_CLASS_NAME %like% "bCash" ) %>%
+#group_by(WEEK,TRANSACTION.DATE.2) %>%
+#summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_SGD),2),nsmall=2),count=n())
+#x_pivot_others$country <- rep("Others",nrow(x_pivot_others))
+
+
+
+
+
+
+
 x_piv <- rbind(x_pivot_Ph,x_pivot_Indon,x_pivot_China,x_pivot_India,x_pivot_Bg)
 
 write.csv(x_piv,"C:\\Users\\P1318124\\Downloads\\x_piv.csv",row.names=FALSE)
@@ -90,28 +104,7 @@ x_piv$WEEK<- as.Date(x_piv$WEEK,format="%Y-%m-%d")
 
 #Cash-out file.
 
-y <- read.csv("C:\\Users\\P1318124\\Downloads\\Revised_Cash_Out.csv",header=TRUE)
-
-
-##################################
-#Dealing with multiple date types in same column.
-
-a <- as.Date(y[,3],format="%Y-%m-%d")
-b <- as.Date(y[,3],format="%d/%m/%Y")
-a[is.na(a)] <- b[!is.na(b)]
-y[,3] <- a
-
-
-y_week <- data.frame(y[,3],
-cut_Date=cut(as.Date(y[,3]),"week", start.on.monday=FALSE),
-cut_POSIXt=cut(as.POSIXct(as.Date(y[,3])),"week",start.on.monday=FALSE),
-stringsAsFactors=FALSE) 
-y$WEEK <- y_week[,3]
-
-c <- as.Date(y[,51],format="%Y-%m-%d")
-d <- as.Date(y[,51],format="%d/%m/%Y")
-c[is.na(c)] <- d[!is.na(d)]
-y[,51] <- c
+y <- final_cash_out
 
 
 ################################
@@ -128,26 +121,5 @@ summarise(remit_sum = format(round(sum(ORIGINAL_AMOUNT),2),nsmall=2),brand_count
 y_pivot_brand$remit_sum <- as.numeric(y_pivot_brand$remit_sum)
 y_pivot_brand$brand_count <- as.numeric(y_pivot_brand$brand_count)
 
-################################
 
-################################
-
-################################
-
-######
-##   #####
-##        ###
-##       ##
-##      ##
-##    ##
-##   ##
-## ##
-##
-##
-##
-##
-##
 write.csv(y_pivot_brand,"C:\\Users\\P1318124\\Downloads\\y_pivot_brand.csv",row.names=FALSE)
-
-
-
