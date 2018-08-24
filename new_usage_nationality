@@ -4,27 +4,11 @@ library(XLConnect)
 library(xlsx)
 library(dplyr)
 library(tidyverse)
+library(eeptools)
+library(reshape2)
+library(data.table)
 
-final_natly
-
-
-#create a blank workbook, i.e. in xlsx format.
-#Daily_Report_Remittance <- createWorkbook("C:\\Users\\P1318124\\Desktop\\Remittance\\Daily_Report_Remittance.xlsx")
-
-#save workbook.
-#saveWorkbook(Daily_Report_Remittance,file="C:\\Users\\P1318124\\Desktop\\Remittance\\Daily_Report_Remittance.xlsx")
-
-#load workbook.
-Daily_Report_Remittance <- loadWorkbook("C:\\Users\\P1318124\\Desktop\\Remittance\\Daily_Report_Remittance.xlsx")
-
-
-#add empty worksheets to the created blank workbook.
-#addWorksheet(Daily_Report_Remittance,"Daily-Nationality")
-#addWorksheet(Daily_Report_Remittance,"Weekly-Nationality")
-#addWorksheet(Daily_Report_Remittance,"Monthly_Nationality")
-#addWorksheet(Daily_Report_Remittance,"Daily-Cash Out")
-#addWorksheet(Daily_Report_Remittance,"Weekly-Cash Out")
-#addWorksheet(Daily_Report_Remittance,"Monthly-Cash Out")
+#x<- final_natly
 
 
 x <- final_natly
@@ -37,35 +21,37 @@ filter(TEST.USERS != "YES")
 x_pivot_China <- x_pivot %>%
 filter(SERVICE_CLASS_NAME %like% "China")%>%
 group_by(WEEK,TRANSACTION.DATE.2) %>%
-summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_SGD),2),nsmall=2))
+summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_SGD),2),nsmall=2),count=n())
 x_pivot_China$country <- rep("China",nrow(x_pivot_China))
 
 x_pivot_India <- x_pivot %>%
 filter(SERVICE_CLASS_NAME %like% "India")%>%
 group_by(WEEK,TRANSACTION.DATE.2) %>%
-summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_SGD),2),nsmall=2))
+summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_SGD),2),nsmall=2),count=n())
 x_pivot_India$country <- rep("India",nrow(x_pivot_India))
 
 
 x_pivot_Ph <- x_pivot %>%
 filter(SERVICE_CLASS_NAME %like% "Philippines" | SERVICE_CLASS_NAME %like% "GCash") %>%
 group_by(WEEK,TRANSACTION.DATE.2) %>%
-summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_SGD),2),nsmall=2))
+summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_SGD),2),nsmall=2),count=n())
 x_pivot_Ph$country <- rep("Philippines",nrow(x_pivot_Ph))
 
 x_pivot_Bg <- x_pivot %>%
 filter(SERVICE_CLASS_NAME %like% "bCash")%>%
 group_by(WEEK,TRANSACTION.DATE.2) %>%
-summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_SGD),2),nsmall=2))
+summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_SGD),2),nsmall=2),count=n())
 x_pivot_Bg$country <- rep("Bangladesh",nrow(x_pivot_Bg))
 
 x_pivot_Indon <- x_pivot %>%
 filter(SERVICE_CLASS_NAME %like% "Indonesia"| SERVICE_CLASS_NAME %like% "Telkomsel") %>%
 group_by(WEEK,TRANSACTION.DATE.2) %>%
-summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_SGD),2),nsmall=2))
+summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_SGD),2),nsmall=2),count=n())
 x_pivot_Indon$country <- rep("Indonesia",nrow(x_pivot_Indon))
 
 x_piv <- rbind(x_pivot_Ph,x_pivot_Indon,x_pivot_China,x_pivot_India,x_pivot_Bg)
+
+write.csv(x_piv,"C:\\Users\\P1318124\\Downloads\\x_piv.csv",row.names=FALSE)
 
 #x_piv_f <- x_piv %>%
 #filter(as.Date(TRANSACTION.DATE.2,format="%Y-%m-%d") >= as.Date("2018-04-01",format="%Y-%m-%d")) %>%
@@ -76,44 +62,92 @@ x_piv <- rbind(x_pivot_Ph,x_pivot_Indon,x_pivot_China,x_pivot_India,x_pivot_Bg)
 
 x_piv$TRANSACTION.DATE.2 <- as.Date(x_piv$TRANSACTION.DATE.2,format="%Y-%m-%d")
 x_piv$remit_sum <- as.numeric(x_piv$remit_sum)
-x_piv$TRANSACTION.DATE.2 <- as.Date(x_piv$WEEK,format="%Y-%m-%d")
+x_piv$WEEK<- as.Date(x_piv$WEEK,format="%Y-%m-%d")
 
 #x_piv_aug <- subset(x_piv, TRANSACTION.DATE.2>="2018-08-01")
 
-x_piv_f <- dcast(x_piv, country ~ TRANSACTION.DATE.2, value.var = "remit_sum", fun.aggregate=sum)
+#x_piv_f <- dcast(x_piv, country ~ TRANSACTION.DATE.2, value.var = "remit_sum", fun.aggregate=sum)
 
 #write.csv(x_piv_f,"C:\\Users\\P1318124\\Desktop\\Remittance\\New_Usage_Nationality_Aug.csv")
 
 
-x_week_f <- x_piv %>%
-filter(as.Date(TRANSACTION.DATE.2,format="%Y-%m-%d") >= as.Date("2018-04-01",format="%Y-%m-%d")) %>%
-group_by(country,WEEK) %>%
-summarise(remit_sums = format(round(sum(remit_sum),2),nsmall=2))
+#x_week_f <- x_piv %>%
+#filter(as.Date(TRANSACTION.DATE.2,format="%Y-%m-%d") >= as.Date("2018-04-01",format="%Y-%m-%d")) %>%
+#group_by(country,WEEK) %>%
+#summarise(remit_sums = format(round(sum(remit_sum),2),nsmall=2))
 
-x_week_f <- dcast(x_piv, country ~ WEEK, value.var = "remit_sum", fun.aggregate=sum)
+#x_week_f <- dcast(x_piv, country ~ WEEK, value.var = "remit_sum", fun.aggregate=sum)
+
+
+#Replace rownames of x_piv_f with country names.
+#rownames(x_piv_f) <- x_piv_f[,1]
+
+#Remove first column of x_piv_f.
+#x_piv_f <- x_piv_f[,-1]
 
 #x_week_fy1819 <- subset(x_piv, TRANSACTION.DATE.2>="2018-08-01")
 
 
-#write datasets into workbook into speci
-#writeData(OUT, sheet="Daily-Nationality", x=x_piv_f)
-#writeData(OUT, sheet="Weekly-Nationality", x=x_week_f)
-#writeData(OUT, sheet="Monthly-Nationality", x=x_month_f)
-#writeData(OUT, sheet="Daily-Cash Out", x=y_piv_f)
-#writeData(OUT, sheet="Weekly-Cash Out", x=y_week_f)
-#writeData(OUT, sheet="Monthly-Cash Out", x=y_month_f)
+#Cash-out file.
 
-write.xlsx(x_piv_f,file="C:\\Users\\P1318124\\Desktop\\Remittance\\Daily_Report_Remittance.xlsx",sheetName="Daily-Nationality",append=TRUE)
-write.xlsx(x_week_f,file="C:\\Users\\P1318124\\Desktop\\Remittance\\Daily_Report_Remittance.xlsx",sheetName="Weekly-Nationality",append=TRUE)
+y <- read.csv("C:\\Users\\P1318124\\Downloads\\Revised_Cash_Out.csv",header=TRUE)
 
 
+##################################
+#Dealing with multiple date types in same column.
+
+a <- as.Date(y[,3],format="%Y-%m-%d")
+b <- as.Date(y[,3],format="%d/%m/%Y")
+a[is.na(a)] <- b[!is.na(b)]
+y[,3] <- a
 
 
+y_week <- data.frame(y[,3],
+cut_Date=cut(as.Date(y[,3]),"week", start.on.monday=FALSE),
+cut_POSIXt=cut(as.POSIXct(as.Date(y[,3])),"week",start.on.monday=FALSE),
+stringsAsFactors=FALSE) 
+y$WEEK <- y_week[,3]
+
+c <- as.Date(y[,51],format="%Y-%m-%d")
+d <- as.Date(y[,51],format="%d/%m/%Y")
+c[is.na(c)] <- d[!is.na(d)]
+y[,51] <- c
 
 
+################################
 
+y_pivot <- y %>%
+filter(TRANSACTION_STATUS == "PST" | TRANSACTION_STATUS == "PST7"| TRANSACTION_STATUS == "PST9") %>%
+#filter(MARK == "Completion") %>%
+filter(TEST.USERS != "YES") 
 
+y_pivot_brand <- y_pivot %>%
+#filter(BRAND_CATEGORY_NAME %like% "mRemit")%>%
+group_by(BRAND_CATEGORY_NAME,WEEK,TRANSACTION_DAY) %>%
+summarise(remit_sum = format(round(sum(ORIGINAL_AMOUNT),2),nsmall=2),brand_count=n())
+y_pivot_brand$remit_sum <- as.numeric(y_pivot_brand$remit_sum)
+y_pivot_brand$brand_count <- as.numeric(y_pivot_brand$brand_count)
 
+################################
+
+################################
+
+################################
+
+######
+##   #####
+##        ###
+##       ##
+##      ##
+##    ##
+##   ##
+## ##
+##
+##
+##
+##
+##
+write.csv(y_pivot_brand,"C:\\Users\\P1318124\\Downloads\\y_pivot_brand.csv",row.names=FALSE)
 
 
 
