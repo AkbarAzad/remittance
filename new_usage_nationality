@@ -18,35 +18,62 @@ filter(TRANSACTION_STATUS == "PST" | TRANSACTION_STATUS == "PST7"| TRANSACTION_S
 filter(MARK == "Completion") %>%
 filter(TEST.USERS != "YES") 
 
+#x_pivot <- x %>%
+#filter(TRANSACTION_STATUS == "RFDS) %>%
+#filter(MARK == "Completion") %>%
+#filter(TEST.USERS != "YES") 
+
+
+
+x_pivot_ov <- x_pivot %>%
+#filter(SERVICE_CLASS_NAME %like% "China")%>%
+#filter(DESTINATION_COUNTRY == "CHINA") %>%
+group_by(DESTINATION_COUNTRY,WEEK,TRANSACTION.DATE.2, SERVICE_ORIGIN,BRAND_NAME) %>%
+#summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_SGD),2),nsmall=2),count=n())
+summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_EXCLUDE_FX_MRG),2),nsmall=2),count=n())
+
+write.csv(x_pivot_ov,"C:\\Users\\P1318124\\Downloads\\x_pivot_ov.csv",row.names=FALSE)
+
+
 x_pivot_China <- x_pivot %>%
-filter(SERVICE_CLASS_NAME %like% "China")%>%
-group_by(WEEK,TRANSACTION.DATE.2) %>%
-summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_SGD),2),nsmall=2),count=n())
+#filter(SERVICE_CLASS_NAME %like% "China")%>%
+filter(DESTINATION_COUNTRY == "CHINA") %>%
+group_by(WEEK,TRANSACTION.DATE.2, SERVICE_ORIGIN,BRAND_NAME) %>%
+#summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_SGD),2),nsmall=2),count=n())
+summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_EXCLUDE_FX_MRG),2),nsmall=2),count=n())
 x_pivot_China$country <- rep("China",nrow(x_pivot_China))
 
 x_pivot_India <- x_pivot %>%
-filter(SERVICE_CLASS_NAME %like% "India")%>%
-group_by(WEEK,TRANSACTION.DATE.2) %>%
-summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_SGD),2),nsmall=2),count=n())
+#filter(SERVICE_CLASS_NAME %like% "India")%>%
+filter(DESTINATION_COUNTRY == "INDIA") %>%
+group_by(WEEK,TRANSACTION.DATE.2, SERVICE_ORIGIN,BRAND_NAME) %>%
+#summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_SGD),2),nsmall=2),count=n())
+summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_EXCLUDE_FX_MRG),2),nsmall=2),count=n())
 x_pivot_India$country <- rep("India",nrow(x_pivot_India))
 
 
 x_pivot_Ph <- x_pivot %>%
-filter(SERVICE_CLASS_NAME %like% "Philippines" | SERVICE_CLASS_NAME %like% "GCash") %>%
-group_by(WEEK,TRANSACTION.DATE.2) %>%
-summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_SGD),2),nsmall=2),count=n())
+#filter(SERVICE_CLASS_NAME %like% "Philippines" | SERVICE_CLASS_NAME %like% "GCash") %>%
+filter(DESTINATION_COUNTRY == "PHILIPPINES") %>%
+group_by(WEEK,TRANSACTION.DATE.2, SERVICE_ORIGIN,BRAND_NAME) %>%
+#summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_SGD),2),nsmall=2),count=n())
+summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_EXCLUDE_FX_MRG),2),nsmall=2),count=n())
 x_pivot_Ph$country <- rep("Philippines",nrow(x_pivot_Ph))
 
 x_pivot_Bg <- x_pivot %>%
-filter(SERVICE_CLASS_NAME %like% "bCash")%>%
-group_by(WEEK,TRANSACTION.DATE.2) %>%
-summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_SGD),2),nsmall=2),count=n())
+#filter(SERVICE_CLASS_NAME %like% "bCash")%>%
+filter(DESTINATION_COUNTRY == "BANGLADESH") %>%
+group_by(WEEK,TRANSACTION.DATE.2, SERVICE_ORIGIN,BRAND_NAME) %>%
+#summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_SGD),2),nsmall=2),count=n())
+summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_EXCLUDE_FX_MRG),2),nsmall=2),count=n())
 x_pivot_Bg$country <- rep("Bangladesh",nrow(x_pivot_Bg))
 
 x_pivot_Indon <- x_pivot %>%
-filter(SERVICE_CLASS_NAME %like% "Indonesia"| SERVICE_CLASS_NAME %like% "Telkomsel") %>%
-group_by(WEEK,TRANSACTION.DATE.2) %>%
-summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_SGD),2),nsmall=2),count=n())
+#filter(SERVICE_CLASS_NAME %like% "Indonesia"| SERVICE_CLASS_NAME %like% "Telkomsel") %>%
+filter(DESTINATION_COUNTRY == "INDONESIA") %>%
+group_by(WEEK,TRANSACTION.DATE.2, SERVICE_ORIGIN,BRAND_NAME) %>%
+#summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_SGD),2),nsmall=2),count=n())
+summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_EXCLUDE_FX_MRG),2),nsmall=2),count=n())
 x_pivot_Indon$country <- rep("Indonesia",nrow(x_pivot_Indon))
 
 
@@ -57,10 +84,11 @@ x_pivot_Indon$country <- rep("Indonesia",nrow(x_pivot_Indon))
 #summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_SGD),2),nsmall=2),count=n())
 #x_pivot_others$country <- rep("Others",nrow(x_pivot_others))
 
-
-
-
-
+x_pivot_svc <- x_pivot %>%
+group_by(BRAND_NAME,WEEK,TRANSACTION.DATE.2, SERVICE_ORIGIN) %>%
+#summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_SGD),2),nsmall=2),count=n())
+summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_EXCLUDE_FX_MRG),2),nsmall=2),count=n())
+write.csv(x_pivot_svc,"C:\\Users\\P1318124\\Downloads\\Service.csv",row.names=FALSE)
 
 
 x_piv <- rbind(x_pivot_Ph,x_pivot_Indon,x_pivot_China,x_pivot_India,x_pivot_Bg)
@@ -114,12 +142,30 @@ filter(TRANSACTION_STATUS == "PST" | TRANSACTION_STATUS == "PST7"| TRANSACTION_S
 #filter(MARK == "Completion") %>%
 filter(TEST.USERS != "YES") 
 
-y_pivot_brand <- y_pivot %>%
-#filter(BRAND_CATEGORY_NAME %like% "mRemit")%>%
-group_by(BRAND_CATEGORY_NAME,WEEK,TRANSACTION_DAY) %>%
+y_pivot_prepaid <- y_pivot %>%
+filter(BRAND_CATEGORY_NAME %like% "SingTel Prepaid Top Up")%>%
+#filter(TRANSACTION_STATUS == "PST") %>%
+group_by(CHANNEL,WEEK,TRANSACTION_DAY) %>%
 summarise(remit_sum = format(round(sum(ORIGINAL_AMOUNT),2),nsmall=2),brand_count=n())
-y_pivot_brand$remit_sum <- as.numeric(y_pivot_brand$remit_sum)
-y_pivot_brand$brand_count <- as.numeric(y_pivot_brand$brand_count)
+y_pivot_prepaid$remit_sum <- as.numeric(y_pivot_prepaid$remit_sum)
+y_pivot_prepaid$brand_count <- as.numeric(y_pivot_prepaid$brand_count)
+y_pivot_prepaid$brand <- rep("prepaid",nrow(y_pivot_prepaid))
+
+
+y_pivot_mremit <- y_pivot %>%
+filter(BRAND_CATEGORY_NAME %like% "SingTel mRemit")%>%
+group_by(CHANNEL,WEEK,TRANSACTION_DAY) %>%
+summarise(remit_sum = format(round(sum(ORIGINAL_AMOUNT),2),nsmall=2),brand_count=n())
+y_pivot_mremit$remit_sum <- as.numeric(y_pivot_mremit$remit_sum)
+y_pivot_mremit$brand_count <- as.numeric(y_pivot_mremit$brand_count)
+y_pivot_mremit$brand <- rep("mremit",nrow(y_pivot_mremit))
+
+y_pivot_brand <- rbind(y_pivot_prepaid,y_pivot_mremit)
 
 
 write.csv(y_pivot_brand,"C:\\Users\\P1318124\\Downloads\\y_pivot_brand.csv",row.names=FALSE)
+
+
+
+
+
