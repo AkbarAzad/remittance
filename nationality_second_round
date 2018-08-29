@@ -16,7 +16,7 @@ natly <- read.csv("C:\\Users\\P1318124\\Downloads\\Revised_Nationality.csv",head
 #natly2 <- read.csv("C:\\Users\\P1318124\\Downloads\\Nationality_Original.csv",header=TRUE)
 
 
-natly_day <- read.csv("C:\\Users\\P1318124\\Desktop\\Remittance\\Daily Telepin Reports\\28 Aug\\RepResult.4.Report_Remittance_Nationality.S.1.Daily_Report_Remittance_by_Nationality_20180828063000.csv",header=TRUE)
+natly_day <- read.csv("C:\\Users\\P1318124\\Desktop\\Remittance\\Daily Telepin Reports\\29 Aug\\RepResult.4.Report_Remittance_Nationality.S.1.Daily_Report_Remittance_by_Nationality_20180829063000.csv",header=TRUE)
 
 dim(natly)#726265     41
 dim(natly_day) #2306   31
@@ -346,6 +346,7 @@ write.csv(final_natly,"C:\\Users\\P1318124\\Downloads\\Revised_Nationality.csv")
 #UPDATED TILL REPORTING DAY 26 AUG 2018#
 #UPDATED TILL REPORTING DAY 27 AUG 2018#
 #UPDATED TILL REPORTING DAY 28 AUG 2018#
+#UPDATED TILL REPORTING DAY 29 AUG 2018#
 
 
 
