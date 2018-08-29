@@ -12,7 +12,7 @@ cash_out_raw <- read.csv("C:\\Users\\P1318124\\Downloads\\Revised_Cash_Out.csv",
 
 #cash_out_raw <- read.csv("C:\\Users\\P1318124\\Downloads\\Cash Out Raw.csv",header=TRUE)
 
-cash_out_daily <- read.csv("C:\\Users\\P1318124\\Desktop\\Remittance\\Daily Telepin Reports\\28 Aug\\RepResult.21.Daily_Report_CashOut.S.1.Daily_Report_for_Cash_Out_20180828000100.csv",header=TRUE)
+cash_out_daily <- read.csv("C:\\Users\\P1318124\\Desktop\\Remittance\\Daily Telepin Reports\\29 Aug\\RepResult.21.Daily_Report_CashOut.S.1.Daily_Report_for_Cash_Out_20180829000100.csv",header=TRUE)
 
 #cash_out_daily <- read.csv("C:\\Users\\P1318124\\Desktop\\Remittance\\Daily Telepin Reports\\03 Aug\\RepResult.21.Daily_Report_CashOut.S.1.Daily_Report_for_Cash_Out_20180803000100.csv",header=TRUE)
 
@@ -171,6 +171,13 @@ d <- as.Date(final_cash_out[,50],format="%d/%m/%Y")
 c[is.na(c)] <- d[!is.na(d)]
 final_cash_out[,50] <- c
 
+test_class <- rep("FALSE",ncol(y9))
+for(i in 1:ncol(y9)){
+if(class(y9[,i])==class(x3[,i])){
+test_class[i] <- "TRUE"
+}
+}
+test_class
 
 ################################################
 ###############################################
@@ -219,11 +226,7 @@ write.csv(final_cash_out,"C:\\Users\\P1318124\\Downloads\\Revised_Cash_Out.csv")
 #Updated till REPORT_DAY 26 AUG 2018#
 #Updated till REPORT_DAY 27 AUG 2018#
 #Updated till REPORT_DAY 28 AUG 2018#
-
-
-
-
-
+#Updated till REPORT_DAY 29 AUG 2018#
 
 
 
