@@ -1,0 +1,20 @@
+library(dplyr)
+library(tidyverse)
+
+dash <- read.csv("C:\\Users\\P1318124\\Desktop\\Remittance\\dash_1st_txn.csv",header=TRUE)
+
+dash_date <- dash %>%
+group_by(ACCT_ID) %>%
+arrange(MIN.TXN_ID.) %>%
+slice(1L)
+
+dash_datedf <- as.data.frame(dash_date)
+
+write.csv(dash_datedf,"C:\\Users\\P1318124\\Desktop\\Remittance\\dash_1st_txn_id.csv",row.names=FALSE)
+
+dash_natly <- read.csv("C:\\Users\\P1318124\\Desktop\\Remittance\\dash_natly.csv",header=TRUE)
+
+dash_merge <- merge(x=dash_datedf,y=dash_natly,by="ACCT_ID",all.x=TRUE)
+
+write.csv(dash_merge,"C:\\Users\\P1318124\\Desktop\\Remittance\\dash_1st_txn_full.csv",row.names=FALSE)
+
