@@ -40,12 +40,24 @@ summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_EXCLUDE_FX_MRG),2),nsmall
 
 write.csv(x_pivot_ov,"C:\\Users\\P1318124\\Downloads\\x_pivot_ov.csv",row.names=FALSE)
 
+##############################################################################################################################
+##############################################################################################################################
+
+###############################################################################################################################
+###############################################################################################################################
+
 #x_pivot_month <- x_pivot %>%
 #filter(SERVICE_CLASS_NAME %like% "China")%>%
 #filter(DESTINATION_COUNTRY == "CHINA") %>%
 #group_by(DESTINATION_COUNTRY,WEEK,TRANSACTION.DATE.2, SERVICE_ORIGIN,BRAND_NAME) %>%
 #summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_SGD),2),nsmall=2),count=n())
 #summarise(remit_sum = format(round(sum(REMITTED_AMOUNT_EXCLUDE_FX_MRG),2),nsmall=2),count=n())
+
+####################################################################################################################################
+######################################################################################################################################
+
+###################################################################################################################################
+#####################################################################################################################################
 
 x_pivot_month <- dcast(x_pivot, DESTINATION_COUNTRY ~ Month_Year, value.var = "REMITTED_AMOUNT_EXCLUDE_FX_MRG", fun.aggregate=sum)
 
@@ -87,6 +99,106 @@ write.csv(x_pivot_final,"C:\\Users\\P1318124\\Desktop\\Remittance\\Nett Spends.c
 
 #####################################################################################################
 #####################################################################################################
+
+#x_pivot_month_count <- dcast(x_pivot, DESTINATION_COUNTRY ~ Month_Year, value.var = "REMITTED_AMOUNT_EXCLUDE_FX_MRG", fun.aggregate=length)
+
+x_pivot_jun_count <- dcast(xjun, DESTINATION_COUNTRY ~ Month_Year, value.var = "REMITTED_AMOUNT_EXCLUDE_FX_MRG", fun.aggregate=length)
+
+
+x_pivot_apr_count <- dcast(xapr, DESTINATION_COUNTRY ~ Month_Year, value.var = "REMITTED_AMOUNT_EXCLUDE_FX_MRG", fun.aggregate=length)
+
+x_pivot_jun2_count <- x_pivot_jun_count[,c(1,5,4,2,8,7,6,3)]
+
+x_pivot_apr2_count <- x_pivot_apr_count[,c(1,5,4,8,2,9,7,6,3)]
+
+x_pivot_merge_count <- merge(x=x_pivot_jun2_count,y=x_pivot_apr2_count,by="DESTINATION_COUNTRY")
+
+x_pivot_sum_count <- rep(0,ncol(x_pivot_merge_count))
+
+for(i in 2:length(x_pivot_sum_count)){
+x_pivot_sum_count[i] <- sum(x_pivot_merge_count[,i])
+}
+
+x_pivot_sum_count[1] <- "Nett Transactions"
+
+x_pivot_final_count <- rbind(x_pivot_merge_count,x_pivot_sum_count)
+
+x_pivot_final_count[,1] <- as.character(x_pivot_final_count[,1])
+
+x_pivot_final_count[6,1] <- "Nett Transactions"
+
+write.csv(x_pivot_final_count,"C:\\Users\\P1318124\\Desktop\\Remittance\\Nett Transactions.csv",row.names=FALSE)
+
+#############################################################################################################################
+#############################################################################################################################
+
+#############################################################################################################################
+#############################################################################################################################
+
+x_pivot_day <- dcast(x_pivot, DESTINATION_COUNTRY ~ TRANSACTION.DATE.2, value.var = "REMITTED_AMOUNT_EXCLUDE_FX_MRG", fun.aggregate=sum)
+
+#xjunday <- x_pivot %>%
+#filter(Year == 2017)
+
+#x_pivot_junday <- dcast(xjunday, DESTINATION_COUNTRY ~ TRANSACTION.DATE.2, value.var = "REMITTED_AMOUNT_EXCLUDE_FX_MRG", fun.aggregate=sum)
+
+#xaprday <- x_pivot %>%
+#filter(Year == 2018, TRANSACTION.DATE.2 >= "01-04-2018")
+
+#x_pivot_aprday <- dcast(xaprday, DESTINATION_COUNTRY ~ TRANSACTION.DATE.2, value.var = "REMITTED_AMOUNT_EXCLUDE_FX_MRG", fun.aggregate=sum)
+
+
+#x_pivot_jun2day <- x_pivot_junday[,c(1,5,4,2,8,7,6,3)]
+
+#x_pivot_apr2day <- x_pivot_aprday[,c(1,5,4,8,2,9,7,6,3)]
+
+#x_pivot_mergeday <- merge(x=x_pivot_jun2day,y=x_pivot_apr2day,by="DESTINATION_COUNTRY")
+
+x_pivot_sumday <- rep(0,ncol(x_pivot_day))
+
+for(i in 2:length(x_pivot_sumday)){
+x_pivot_sumday[i] <- sum(x_pivot_day[,i])
+}
+
+x_pivot_sumday[1] <- "Nett Spends"
+
+x_pivot_finalday <- rbind(x_pivot_day,x_pivot_sumday)
+
+x_pivot_finalday[,1] <- as.character(x_pivot_finalday[,1])
+
+x_pivot_finalday[6,1] <- "Nett Spends"
+
+write.csv(x_pivot_finalday,"C:\\Users\\P1318124\\Desktop\\Remittance\\Nett Spends_Day.csv",row.names=FALSE)
+
+################################################################################################################################
+################################################################################################################################
+
+################################################################################################################################
+################################################################################################################################
+
+x_pivot_daycount <- dcast(x_pivot, DESTINATION_COUNTRY ~ TRANSACTION.DATE.2, value.var = "REMITTED_AMOUNT_EXCLUDE_FX_MRG", fun.aggregate=length)
+
+x_pivot_sumdaycount <- rep(0,ncol(x_pivot_daycount))
+
+for(i in 2:length(x_pivot_sumdaycount)){
+x_pivot_sumdaycount[i] <- sum(x_pivot_daycount[,i])
+}
+
+x_pivot_sumdaycount[1] <- "Nett Transactions"
+
+x_pivot_finaldaycount <- rbind(x_pivot_daycount,x_pivot_sumdaycount)
+
+x_pivot_finaldaycount[,1] <- as.character(x_pivot_finaldaycount[,1])
+
+x_pivot_finaldaycount[6,1] <- "Nett Transactions"
+
+write.csv(x_pivot_finaldaycount,"C:\\Users\\P1318124\\Desktop\\Remittance\\Nett Transactions_Day.csv",row.names=FALSE)
+
+#############################################################################################################################
+#############################################################################################################################
+
+#############################################################################################################################
+#############################################################################################################################
 
 x_pivot_China <- x_pivot %>%
 #filter(SERVICE_CLASS_NAME %like% "China")%>%
@@ -185,11 +297,15 @@ x_piv$WEEK<- as.Date(x_piv$WEEK,format="%Y-%m-%d")
 
 #Cash-out file.
 
+#y <- final_cash_out
+
+########################################################################################################################
+##########################################################################################################################
+
+########################################################################################################################
+########################################################################################################################
+
 y <- final_cash_out
-
-
-################################
-
 y_pivot <- y %>%
 filter(TRANSACTION_STATUS == "PST" | TRANSACTION_STATUS == "PST7"| TRANSACTION_STATUS == "PST9") %>%
 #filter(MARK == "Completion") %>%
@@ -215,11 +331,151 @@ y_pivot_mremit$brand <- rep("mremit",nrow(y_pivot_mremit))
 
 y_pivot_brand <- rbind(y_pivot_prepaid,y_pivot_mremit)
 
-
 write.csv(y_pivot_brand,"C:\\Users\\P1318124\\Downloads\\y_pivot_brand.csv",row.names=FALSE)
 
+###############################################################################################################################
+##############################################################################################################################
+
+##############################################################################################################################
+##############################################################################################################################
+y <- final_cash_out
+
+y_pivot <- y %>%
+filter(TRANSACTION_STATUS == "PST" | TRANSACTION_STATUS == "PST7"| TRANSACTION_STATUS == "PST9") %>%
+#filter(MARK == "Completion") %>%
+filter(TEST.USERS != "YES") 
+
+y_pivot2 <- y_pivot %>%
+filter(BRAND_CATEGORY_NAME %like% "mRemit" | BRAND_CATEGORY_NAME %like% "Prepaid")
+
+y_pivot2$Month_Abb <- month.abb[month(y_pivot2[,50])]
+
+y_pivot2$Year <- year(y_pivot2[,50])
+
+y_pivot2$Month_Year <- paste(y_pivot2$Month_Abb,y_pivot2$Year, sep = "-")
+
+yjun <- y_pivot2 %>%
+filter(Year == 2017)
+
+yapr <- y_pivot2 %>%
+filter(Year == 2018)
+
+y_pivot_jun <- dcast(yjun, BRAND_CATEGORY_NAME ~ Month_Year, value.var = "ORIGINAL_AMOUNT", fun.aggregate=sum)
+
+y_pivot_apr <- dcast(yapr, BRAND_CATEGORY_NAME ~ Month_Year, value.var = "ORIGINAL_AMOUNT", fun.aggregate=sum)
+
+y_pivot_jun2 <- y_pivot_jun[,c(1,5,4,2,8,7,6,3)]
+
+y_pivot_apr2 <- y_pivot_apr[,c(1,5,4,8,2,9,7,6,3)]
+
+y_pivot_merge <- merge(x=y_pivot_jun2,y=y_pivot_apr2,by="BRAND_CATEGORY_NAME")
+
+y_pivot_sum <- rep(0,ncol(y_pivot_merge))
+
+for(i in 2:length(y_pivot_sum)){
+y_pivot_sum[i] <- sum(y_pivot_merge[,i])
+}
+
+y_pivot_sum[1] <- "Nett Spends"
+
+y_pivot_final <- rbind(y_pivot_merge,y_pivot_sum)
+
+y_pivot_final[,1] <- as.character(y_pivot_final[,1])
+
+y_pivot_final[3,1] <- "Nett Spends"
+
+write.csv(y_pivot_final,"C:\\Users\\P1318124\\Desktop\\Remittance\\Nett Spends_Brand.csv",row.names=FALSE)
+
+#######################################################################################################################
+########################################################################################################################
+
+#########################################################################################################################
+########################################################################################################################
+y_pivot_jun_count <- dcast(yjun, BRAND_CATEGORY_NAME ~ Month_Year, value.var = "ORIGINAL_AMOUNT", fun.aggregate=length)
+
+y_pivot_apr_count <- dcast(yapr, BRAND_CATEGORY_NAME ~ Month_Year, value.var = "ORIGINAL_AMOUNT", fun.aggregate=length)
+
+y_pivot_jun2_count <- y_pivot_jun_count[,c(1,5,4,2,8,7,6,3)]
+
+y_pivot_apr2_count <- y_pivot_apr_count[,c(1,5,4,8,2,9,7,6,3)]
+
+y_pivot_merge_count <- merge(x=y_pivot_jun2_count,y=y_pivot_apr2_count,by="BRAND_CATEGORY_NAME")
+
+y_pivot_sum_count <- rep(0,ncol(y_pivot_merge_count))
+
+for(i in 2:length(y_pivot_sum_count)){
+y_pivot_sum_count[i] <- sum(y_pivot_merge_count[,i])
+}
+
+y_pivot_sum_count[1] <- "Nett Transactions"
+
+y_pivot_final_count <- rbind(y_pivot_merge_count,y_pivot_sum_count)
+
+y_pivot_final_count[,1] <- as.character(y_pivot_final_count[,1])
+
+y_pivot_final_count[3,1] <- "Nett Transactions"
+
+write.csv(y_pivot_final_count,"C:\\Users\\P1318124\\Desktop\\Remittance\\Nett Transactions_Brand.csv",row.names=FALSE)
+
+#######################################################################################################################
+########################################################################################################################
+
+#########################################################################################################################
+########################################################################################################################
+
+y_pivot2 <- y_pivot %>%
+filter(BRAND_CATEGORY_NAME %like% "mRemit" | BRAND_CATEGORY_NAME %like% "Prepaid")
+
+y_pivot_day <- dcast(y_pivot2, BRAND_CATEGORY_NAME ~ TRANSACTION_DAY, value.var = "ORIGINAL_AMOUNT", fun.aggregate=sum)
+
+y_pivot_sumday <- rep(0,ncol(y_pivot_day))
+
+for(i in 2:length(y_pivot_sumday)){
+y_pivot_sumday[i] <- sum(y_pivot_day[,i])
+}
+
+y_pivot_sumday[1] <- "Nett Spends"
+
+y_pivot_finalday <- rbind(y_pivot_day,y_pivot_sumday)
+
+y_pivot_finalday[,1] <- as.character(y_pivot_finalday[,1])
+
+y_pivot_finalday[3,1] <- "Nett Spends"
+
+write.csv(y_pivot_finalday,"C:\\Users\\P1318124\\Desktop\\Remittance\\Nett Spends_Brand_Day.csv",row.names=FALSE)
+
+##################################################################################################################
+#############################################################################################################
+
+###########################################################################################################################
+#############################################################################################################################
 
 
+
+
+y_pivot_daycount <- dcast(y_pivot2, BRAND_CATEGORY_NAME ~ TRANSACTION_DAY, value.var = "ORIGINAL_AMOUNT", fun.aggregate=length)
+
+y_pivot_sumdaycount <- rep(0,ncol(y_pivot_daycount))
+
+for(i in 2:length(y_pivot_sumdaycount)){
+y_pivot_sumdaycount[i] <- sum(y_pivot_daycount[,i])
+}
+
+y_pivot_sumdaycount[1] <- "Nett Transactions"
+
+y_pivot_finaldaycount <- rbind(y_pivot_daycount,y_pivot_sumdaycount)
+
+y_pivot_finaldaycount[,1] <- as.character(y_pivot_finaldaycount[,1])
+
+y_pivot_finaldaycount[3,1] <- "Nett Transactions"
+
+write.csv(y_pivot_finaldaycount,"C:\\Users\\P1318124\\Desktop\\Remittance\\Nett Transactions_Brand_Day.csv",row.names=FALSE)
+
+###############################################################################################################################
+###########################################################################################################################
+
+#############################################################################################################################
+###############################################################################################################################
 
 
 
