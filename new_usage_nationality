@@ -574,7 +574,15 @@ write.csv(y_txn_spend_day,"C:\\Users\\P1318124\\Desktop\\Remittance\\Nett Overal
 xfr <- x %>%
 filter(as.character(TRANSACTION.DATE.2) > "2018-08-25")
 
+########################################################################################################################
+############################################################################################################################
 
+#############################################################################################################################
+#############################################################################################################################
+
+library(openxlsx)
+list_of_datasets <- list("Corridor" = x_txn_spend, "Corridor Daily" = x_txn_spend_day, "Brand" = y_txn_spend, "Brand Daily" = y_txn_spend_day)
+write.xlsx(list_of_datasets,file="C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx")
 
 
 
