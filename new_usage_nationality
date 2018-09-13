@@ -233,11 +233,13 @@ write.csv(x_txn_spend_day,"C:\\Users\\P1318124\\Desktop\\Remittance\\Nett Overal
 
 #############################################################################################################################
 #############################################################################################################################
-
-x_pivot_day_indo <- dcast(x_pivot, BRAND_NAME ~ TRANSACTION.DATE.2, value.var = "REMITTED_AMOUNT_EXCLUDE_FX_MRG", fun.aggregate=sum)
-
-x_pivot_day_indo2 <- x_pivot_day_indo %>%
+x_pivot_day_indo <- x_pivot %>%
 filter(BRAND_NAME %like any% c('%Indo%', '%Telkomsel%'))
+
+x_pivot_day_indo2 <- dcast(x_pivot_day_indo, BRAND_NAME ~ TRANSACTION.DATE.2, value.var = "REMITTED_AMOUNT_EXCLUDE_FX_MRG", fun.aggregate=sum)
+
+#x_pivot_day_indo2 <- x_pivot_day_indo %>%
+#filter(BRAND_NAME %like any% c('%Indo%', '%Telkomsel%'))
 
 
 #xjunday <- x_pivot %>%
@@ -260,7 +262,7 @@ filter(BRAND_NAME %like any% c('%Indo%', '%Telkomsel%'))
 x_pivot_sumday_indo <- rep(0,ncol(x_pivot_day_indo2))
 
 for(i in 2:length(x_pivot_sumday_indo)){
-x_pivot_sumday_indo[i] <- sum(x_pivot_day_indo[,i])
+x_pivot_sumday_indo[i] <- sum(x_pivot_day_indo2[,i])
 }
 
 x_pivot_sumday_indo[1] <- "Nett Spends"
@@ -278,11 +280,13 @@ x_pivot_finalday_indo[nrow(x_pivot_finalday_indo),1] <- "Nett Spends"
 
 ################################################################################################################################
 ################################################################################################################################
-
-x_pivot_daycount_indo <- dcast(x_pivot, BRAND_NAME ~ TRANSACTION.DATE.2, value.var = "REMITTED_AMOUNT_EXCLUDE_FX_MRG", fun.aggregate=length)
-
-x_pivot_daycount_indo2 <- x_pivot_daycount_indo %>%
+x_pivot_daycount_indo <- x_pivot %>%
 filter(BRAND_NAME %like any% c('%Indo%', '%Telkomsel%'))
+
+x_pivot_daycount_indo2 <- dcast(x_pivot_daycount_indo, BRAND_NAME ~ TRANSACTION.DATE.2, value.var = "REMITTED_AMOUNT_EXCLUDE_FX_MRG", fun.aggregate=length)
+
+#x_pivot_daycount_indo2 <- x_pivot_daycount_indo %>%
+#filter(BRAND_NAME %like any% c('%Indo%', '%Telkomsel%'))
 
 x_pivot_sumdaycount_indo <- rep(0,ncol(x_pivot_daycount_indo2))
 
@@ -315,10 +319,13 @@ write.csv(x_txn_spend_day_indo,"C:\\Users\\P1318124\\Desktop\\Remittance\\Nett O
 
 ##################################################################################################
 ##################################################################################################
-x_pivot_day_ph <- dcast(x_pivot, BRAND_NAME ~ TRANSACTION.DATE.2, value.var = "REMITTED_AMOUNT_EXCLUDE_FX_MRG", fun.aggregate=sum)
-
-x_pivot_day_ph2 <- x_pivot_day_ph %>%
+x_pivot_day_ph <- x_pivot %>%
 filter(BRAND_NAME %like any% c('%Philippines%', '%Globe%', '%GCash%'))
+
+x_pivot_day_ph2 <- dcast(x_pivot_day_ph, BRAND_NAME ~ TRANSACTION.DATE.2, value.var = "REMITTED_AMOUNT_EXCLUDE_FX_MRG", fun.aggregate=sum)
+
+#x_pivot_day_ph2 <- x_pivot_day_ph %>%
+#filter(BRAND_NAME %like any% c('%Philippines%', '%Globe%', '%GCash%'))
 
 
 #xjunday <- x_pivot %>%
@@ -341,7 +348,7 @@ filter(BRAND_NAME %like any% c('%Philippines%', '%Globe%', '%GCash%'))
 x_pivot_sumday_ph <- rep(0,ncol(x_pivot_day_ph2))
 
 for(i in 2:length(x_pivot_sumday_ph)){
-x_pivot_sumday_ph[i] <- sum(x_pivot_day_ph[,i])
+x_pivot_sumday_ph[i] <- sum(x_pivot_day_ph2[,i])
 }
 
 x_pivot_sumday_ph[1] <- "Nett Spends"
@@ -359,11 +366,14 @@ x_pivot_finalday_ph[nrow(x_pivot_finalday_ph),1] <- "Nett Spends"
 
 ################################################################################################################################
 ################################################################################################################################
-
-x_pivot_daycount_ph <- dcast(x_pivot, BRAND_NAME ~ TRANSACTION.DATE.2, value.var = "REMITTED_AMOUNT_EXCLUDE_FX_MRG", fun.aggregate=length)
-
-x_pivot_daycount_ph2 <- x_pivot_daycount_ph %>%
+x_pivot_daycount_ph <- x_pivot %>%
 filter(BRAND_NAME %like any% c('%Philippines%', '%GCash%', '%Globe%'))
+
+
+x_pivot_daycount_ph2 <- dcast(x_pivot_daycount_ph, BRAND_NAME ~ TRANSACTION.DATE.2, value.var = "REMITTED_AMOUNT_EXCLUDE_FX_MRG", fun.aggregate=length)
+
+#x_pivot_daycount_ph2 <- x_pivot_daycount_ph %>%
+#filter(BRAND_NAME %like any% c('%Philippines%', '%GCash%', '%Globe%'))
 
 x_pivot_sumdaycount_ph <- rep(0,ncol(x_pivot_daycount_ph2))
 
@@ -747,17 +757,30 @@ filter(as.character(TRANSACTION.DATE.2) > "2018-08-25")
 #############################################################################################################################
 x_txn_spend <- x_txn_spend[,-c(2:11)]
 x_txn_spend_day <- x_txn_spend_day[,-c(2:305)]
-x_txn_spend_day_indo <- x_txn_spend_day_indo[,-c(2:305)]
+x_txn_spend_day_indo <- x_txn_spend_day_indo[,-c(2:304)]
+x_txn_spend_day_ph <- x_txn_spend_day_ph[,-c(2:305)]
 y_txn_spend <- y_txn_spend[,-c(2:11)]
 y_txn_spend_day <- y_txn_spend_day[,-c(2:305)]
 
-x_txn_spend <- as.numeric(x_txn_spend[,2:ncol(x_txn_spend)])
-x_txn_spend_day <- as.numeric(x_txn_spend_day[,2:ncol(x_txn_spend_day)])
-y_txn_spend <- as.numeric(y_txn_spend[,2:ncol(y_txn_spend)])
-y_txn_spend_day <- as.numeric(y_txn_spend_day[,2:ncol(y_txn_spend_day)])
+#x_txn_spend <- as.numeric(x_txn_spend[,2:ncol(x_txn_spend)])
+#x_txn_spend_day <- as.numeric(x_txn_spend_day[,2:ncol(x_txn_spend_day)])
+#y_txn_spend <- as.numeric(y_txn_spend[,2:ncol(y_txn_spend)])
+#y_txn_spend_day <- as.numeric(y_txn_spend_day[,2:ncol(y_txn_spend_day)])
 
-library(openxlsx)
-list_of_datasets <- list("Corridor" = x_txn_spend, "Corridor Daily" = x_txn_spend_day, "Brand" = y_txn_spend, "Brand Daily" = y_txn_spend_day, "Philippines Daily" = x_txn_spend_day_ph, "Indonesia Daily" = x_txn_spend_day_indo)
-write.xlsx(list_of_datasets,file="C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx")
+#library(openxlsx)
+#list_of_datasets <- list("Corridor" = x_txn_spend, "Corridor Daily" = x_txn_spend_day, "Brand" = y_txn_spend, "Brand Daily" = y_txn_spend_day, "Philippines Daily" = x_txn_spend_day_ph, "Indonesia Daily" = x_txn_spend_day_indo)
+#write.xlsx(list_of_datasets,file="C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx")
+
+library(xlsx)
+write.xlsx(x_txn_spend, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx", sheetName="Corridor",row.names=FALSE)
+write.xlsx(x_txn_spend_day, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx", sheetName="Corridor Daily", append = TRUE, row.names=FALSE)
+write.xlsx(y_txn_spend, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx", sheetName="Brand", append = TRUE, row.names=FALSE)
+write.xlsx(y_txn_spend_day, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx", sheetName="Brand Daily", append = TRUE, row.names=FALSE)
+write.xlsx(x_txn_spend_day_ph, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx", sheetName="Philippines", append = TRUE, row.names=FALSE)
+write.xlsx(x_txn_spend_day_indo, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx", sheetName="Indonesia", append = TRUE, row.names=FALSE)
+
+
+
+
 
 
