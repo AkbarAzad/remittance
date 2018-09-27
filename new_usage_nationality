@@ -33,6 +33,9 @@ x_pivot$Month_Year <- paste(x_pivot$Month_Abb,x_pivot$Year, sep = "-")
 #filter(MARK == "Completion") %>%
 #filter(TEST.USERS != "YES") 
 
+#x_pivot_mtdactive <- sqldf("SELECT TRANSACTION_DATE, DESTINATION_COUNTRY,BRAND_NAME,REMITTED_AMOUNT_SGD,SOURCE_MSISDN FROM x_pivot")
+x_pivot_mtdactive_month <- sqldf("SELECT Month_Year,COUNT(DISTINCT SOURCE_MSISDN) FROM x_pivot GROUP BY Month_Year")
+write.csv(x_pivot_mtdactive_month,"C:\\Users\\P1318124\\Desktop\\Remittance\\x_pivot_mtdactive_month.csv",row.names=FALSE)
 
 
 x_pivot_ov <- x_pivot %>%
@@ -556,9 +559,9 @@ y_pivot_natly <- y_pivot %>%
 #filter(TRANSACTION_STATUS == "PST") %>%
 group_by(NATIONALITY,BRAND_CATEGORY_NAME,CHANNEL,WEEK,TRANSACTION_DAY) %>%
 summarise(remit_sum = format(round(sum(ORIGINAL_AMOUNT),2),nsmall=2),brand_count=n())
-y_pivot_prepaid_natly$remit_sum <- as.numeric(y_pivot_prepaid_natly$remit_sum)
-y_pivot_prepaid_natly$brand_count <- as.numeric(y_pivot_prepaid_natly$brand_count)
-y_pivot_prepaid_natly$brand <- rep("prepaid",nrow(y_pivot_prepaid_natly))
+y_pivot_natly$remit_sum <- as.numeric(y_pivot_natly$remit_sum)
+y_pivot_natly$brand_count <- as.numeric(y_pivot_natly$brand_count)
+#y_pivot_natly$brand <- rep("prepaid",nrow(y_pivot_natly))
 
 
 #y_pivot_mremit_natly <- y_pivot %>%
@@ -586,7 +589,7 @@ filter(TRANSACTION_STATUS == "PST" | TRANSACTION_STATUS == "PST7"| TRANSACTION_S
 filter(TEST.USERS != "YES") 
 
 y_pivot2 <- y_pivot %>%
-filter(BRAND_CATEGORY_NAME %like% "mRemit" | BRAND_CATEGORY_NAME %like% "Prepaid")
+filter(as.character(BRAND_CATEGORY_NAME) %like any% c("%mRemit%","%Prepaid%"))
 
 y_pivot2$Month_Abb <- month.abb[month(y_pivot2[,50])]
 
@@ -675,7 +678,7 @@ write.csv(y_txn_spend,"C:\\Users\\P1318124\\Desktop\\Remittance\\Nett Overall Sp
 
 
 y_pivot2 <- y_pivot %>%
-filter(BRAND_CATEGORY_NAME %like% "mRemit" | BRAND_CATEGORY_NAME %like% "Prepaid")
+filter(BRAND_CATEGORY_NAME %like any% c("%mRemit%","%Prepaid%"))
 
 y_pivot_day <- dcast(y_pivot2, BRAND_CATEGORY_NAME ~ TRANSACTION_DAY, value.var = "ORIGINAL_AMOUNT", fun.aggregate=sum)
 
@@ -778,6 +781,27 @@ write.xlsx(y_txn_spend, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Workin
 write.xlsx(y_txn_spend_day, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx", sheetName="Brand Daily", append = TRUE, row.names=FALSE)
 write.xlsx(x_txn_spend_day_ph, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx", sheetName="Philippines", append = TRUE, row.names=FALSE)
 write.xlsx(x_txn_spend_day_indo, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx", sheetName="Indonesia", append = TRUE, row.names=FALSE)
+
+#Create blank workbook
+library(openxlsx)
+
+OUT <- createWorkbook()
+addWorksheet(OUT,"Corridor")
+addWorksheet(OUT,"Corridor Daily")
+addWorksheet(OUT,"Brand")
+addWorksheet(OUT,"Brand Daily")
+addWorksheet(OUT,"Indonesia")
+addWorksheet(OUT,"Philippines")
+
+writeData(OUT, sheet = "Corridor", x = x_txn_spend)
+writeData(OUT, sheet = "Corridor Daily", x = x_txn_spend_day)
+writeData(OUT, sheet = "Brand", x = y_txn_spend)
+writeData(OUT, sheet = "Brand Daily", x = y_txn_spend_day)
+writeData(OUT, sheet = "Philippines", x = x_txn_spend_day_ph)
+writeData(OUT, sheet = "Indonesia", x = x_txn_spend_day_indo)
+
+saveWorkbook(OUT, "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx",overwrite=TRUE)
+
 
 
 
