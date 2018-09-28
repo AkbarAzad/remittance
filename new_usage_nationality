@@ -37,6 +37,9 @@ x_pivot$Month_Year <- paste(x_pivot$Month_Abb,x_pivot$Year, sep = "-")
 x_pivot_mtdactive_month <- sqldf("SELECT Month_Year,COUNT(DISTINCT SOURCE_MSISDN) FROM x_pivot GROUP BY Month_Year")
 write.csv(x_pivot_mtdactive_month,"C:\\Users\\P1318124\\Desktop\\Remittance\\x_pivot_mtdactive_month.csv",row.names=FALSE)
 
+x_pivot_mtdactive_month_natly <- sqldf("SELECT Month_Year,DESTINATION_COUNTRY,COUNT(DISTINCT SOURCE_MSISDN) FROM x_pivot GROUP BY Month_Year, DESTINATION_COUNTRY")
+write.csv(x_pivot_mtdactive_month_natly,"C:\\Users\\P1318124\\Desktop\\Remittance\\x_pivot_mtdactive_month_natly.csv",row.names=FALSE)
+
 
 x_pivot_ov <- x_pivot %>%
 #filter(SERVICE_CLASS_NAME %like% "China")%>%
@@ -801,6 +804,10 @@ writeData(OUT, sheet = "Philippines", x = x_txn_spend_day_ph)
 writeData(OUT, sheet = "Indonesia", x = x_txn_spend_day_indo)
 
 saveWorkbook(OUT, "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx",overwrite=TRUE)
+
+
+
+
 
 
 
