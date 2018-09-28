@@ -1,0 +1,124 @@
+--Max txn date
+SELECT CUST_MSISDN, MAX(txn_dt)
+FROM EDWDM.TEDW_SINGCASH_SALESJOURNAL_DOM
+WHERE txn_dt BETWEEN TO_DATE('01-08-18','DD-MM-YY') AND TO_DATE('01-09-18','DD-MM-YY')
+GROUP BY cust_msisdn
+
+--somewhat 2nd max txn date
+SELECT CUST_MSISDN, MAX(TXN_dt)
+FROM EDWDM.TEDW_SINGCASH_SALESJOURNAL_DOM
+WHERE txn_dt < TO_DATE('01-09-18','DD-MM-YY')
+GROUP BY cust_msisdn
+
+SELECT a.CUST_MSISDN, a.maxtxn1, b.maxtxn2
+FROM (SELECT CUST_MSISDN, MAX(txn_dt) AS maxtxn1
+FROM EDWDM.TEDW_SINGCASH_SALESJOURNAL_DOM
+WHERE txn_dt BETWEEN TO_DATE('01-08-18','DD-MM-YY') AND TO_DATE('01-09-18','DD-MM-YY')
+GROUP BY cust_msisdn) a
+LEFT JOIN (SELECT CUST_MSISDN, MAX(TXN_dt) AS maxtxn2
+FROM EDWDM.TEDW_SINGCASH_SALESJOURNAL_DOM
+WHERE txn_dt < TO_DATE('01-09-18','DD-MM-YY')
+GROUP BY cust_msisdn) b
+ON a.cust_msisdn = b.cust_msisdn
+
+--somewhat second latest txn dt
+SELECT CUST_MSISDN, TXN_DT
+FROM (SELECT e.* , ROW_NUMBER() OVER (ORDER BY txn_dt DESC) rn FROM EDWDM.TEDW_SINGCASH_SALESJOURNAL_DOM e)
+WHERE rn = 2
+
+
+--The legendary MAU query
+SELECT a.cust_msisdn, a.maxtxn1, b.maxtxn2
+FROM (
+SELECT CUST_MSISDN, MAX(txn_dt) AS maxtxn1
+FROM EDWDM.TEDW_SINGCASH_SALESJOURNAL_DOM
+WHERE txn_dt BETWEEN TO_DATE('01-08-18','DD-MM-YY') AND TO_DATE('01-09-18','DD-MM-YY')
+GROUP BY cust_msisdn
+) a
+LEFT JOIN (SELECT *
+FROM ( SELECT cust_msisdn,txn_dt AS maxtxn2, ROW_NUMBER()
+OVER(PARTITION BY cust_msisdn ORDER BY txn_dt DESC) rn FROM EDWDM.TEDW_SINGCASH_SALESJOURNAL_DOM t WHERE t.txn_dt < TO_DATE('01-09-18','DD-MM-YY'))
+WHERE rn = 2) b
+ON a.cust_msisdn = b.cust_msisdn
+
+--The revised legendary MAU query
+SELECT c.cust_msisdn, (TRUNC(c.maxtxn1) - TRUNC(c.maxtxn2)) AS difftxn, c.maxtxn1, c.maxtxn2
+FROM (
+SELECT a.cust_msisdn, a.maxtxn1, b.maxtxn2
+FROM (
+SELECT CUST_MSISDN, MAX(txn_dt) AS maxtxn1
+FROM EDWDM.TEDW_SINGCASH_SALESJOURNAL_DOM
+WHERE TRUNC(txn_dt) BETWEEN TO_DATE('01-08-18','DD-MM-YY') AND TO_DATE('01-09-18','DD-MM-YY')
+AND (SVC_CLASS_NAME Like '%GCash%'
+OR SVC_CLASS_NAME Like '%Tranglo%'
+OR SVC_CLASS_NAME Like '%Transferto%'
+OR SVC_CLASS_NAME Like '%Telkomsel%'or SVC_CLASS_NAME like'%bKash%')
+And (STAT = 'PST' OR STAT = 'PST7' OR STAT = 'PST9')
+AND CUST_MSISDN != '6583381170' 
+AND CUST_MSISDN != '6597727199'
+AND CUST_MSISDN != '6596510899'
+And data_txn_rfnd = 'False'
+GROUP BY cust_msisdn
+) a
+LEFT JOIN (SELECT *
+FROM ( SELECT cust_msisdn,txn_dt AS maxtxn2, ROW_NUMBER()
+OVER(PARTITION BY cust_msisdn ORDER BY txn_dt DESC) rn FROM EDWDM.TEDW_SINGCASH_SALESJOURNAL_DOM t WHERE t.txn_dt < TO_DATE('01-09-18','DD-MM-YY')
+AND (t.SVC_CLASS_NAME Like '%GCash%'
+OR t.SVC_CLASS_NAME Like '%Tranglo%'
+OR t.SVC_CLASS_NAME Like '%Transferto%'
+OR t.SVC_CLASS_NAME Like '%Telkomsel%'or SVC_CLASS_NAME like'%bKash%')
+And (t.STAT = 'PST' OR t.STAT = 'PST7' OR t.STAT = 'PST9')
+And TRUNC(t.TXN_DT) BETWEEN TO_DATE('01/12/17','DD/MM/YY') AND TO_DATE('20/12/17','DD/MM/YY')
+AND t.CUST_MSISDN != '6583381170' 
+AND t.CUST_MSISDN != '6597727199'
+AND t.CUST_MSISDN != '6596510899'
+And t.data_txn_rfnd = 'False'
+)
+WHERE rn = 2) b
+ON a.cust_msisdn = b.cust_msisdn
+) c
+WHERE (TRUNC(c.maxtxn1)-TRUNC(c.maxtxn2)) < 90
+
+--count MAU
+SELECT COUNT (DISTINCT c.cust_msisdn)--, (TRUNC(c.maxtxn1) - TRUNC(c.maxtxn2)) AS difftxn, c.maxtxn1, c.maxtxn2
+FROM (
+SELECT a.cust_msisdn, a.maxtxn1, b.maxtxn2
+FROM (
+SELECT CUST_MSISDN, MAX(txn_dt) AS maxtxn1
+FROM EDWDM.TEDW_SINGCASH_SALESJOURNAL_DOM
+WHERE TRUNC(txn_dt) BETWEEN TO_DATE('01-08-18','DD-MM-YY') AND TO_DATE('01-09-18','DD-MM-YY')
+AND (SVC_CLASS_NAME Like '%GCash%'
+OR SVC_CLASS_NAME Like '%Tranglo%'
+OR SVC_CLASS_NAME Like '%Transferto%'
+OR SVC_CLASS_NAME Like '%Telkomsel%'or SVC_CLASS_NAME like'%bKash%')
+And (STAT = 'PST' OR STAT = 'PST7' OR STAT = 'PST9')
+AND CUST_MSISDN != '6583381170' 
+AND CUST_MSISDN != '6597727199'
+AND CUST_MSISDN != '6596510899'
+And data_txn_rfnd = 'False'
+GROUP BY cust_msisdn
+) a
+LEFT JOIN (SELECT *
+FROM ( SELECT cust_msisdn,txn_dt AS maxtxn2, ROW_NUMBER()
+OVER(PARTITION BY cust_msisdn ORDER BY txn_dt DESC) rn FROM EDWDM.TEDW_SINGCASH_SALESJOURNAL_DOM t WHERE t.txn_dt < TO_DATE('01-09-18','DD-MM-YY')
+AND (t.SVC_CLASS_NAME Like '%GCash%'
+OR t.SVC_CLASS_NAME Like '%Tranglo%'
+OR t.SVC_CLASS_NAME Like '%Transferto%'
+OR t.SVC_CLASS_NAME Like '%Telkomsel%'or SVC_CLASS_NAME like'%bKash%')
+And (t.STAT = 'PST' OR t.STAT = 'PST7' OR t.STAT = 'PST9')
+And TRUNC(t.TXN_DT) BETWEEN TO_DATE('01/12/17','DD/MM/YY') AND TO_DATE('20/12/17','DD/MM/YY')
+AND t.CUST_MSISDN != '6583381170' 
+AND t.CUST_MSISDN != '6597727199'
+AND t.CUST_MSISDN != '6596510899'
+And t.data_txn_rfnd = 'False'
+)
+WHERE rn = 2) b
+ON a.cust_msisdn = b.cust_msisdn
+) c
+WHERE (TRUNC(c.maxtxn1)-TRUNC(c.maxtxn2)) < 90
+
+
+
+
+
+
