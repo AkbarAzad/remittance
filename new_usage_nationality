@@ -14,6 +14,8 @@ library(data.table)
 
 #x<- final_natly
 
+#final_natly <- read.csv("C:\\Users\\P1318124\\Downloads\\Revised_Nationality.csv",header=TRUE)
+#final_cash_out <- read.csv("C:\\Users\\P1318124\\Downloads\\Revised_Cash_Out.csv",header=TRUE)
 
 x <- final_natly
 
@@ -779,14 +781,47 @@ y_txn_spend_day <- y_txn_spend_day[,-c(2:305)]
 #list_of_datasets <- list("Corridor" = x_txn_spend, "Corridor Daily" = x_txn_spend_day, "Brand" = y_txn_spend, "Brand Daily" = y_txn_spend_day, "Philippines Daily" = x_txn_spend_day_ph, "Indonesia Daily" = x_txn_spend_day_indo)
 #write.xlsx(list_of_datasets,file="C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx")
 
+
+#MoM % Variance.
+library(dplyr)
+x_pivot_mom <- x_pivot %>%
+filter(month(TRANSACTION.DATE.2) == month(Sys.Date()-1) | month(TRANSACTION.DATE.2) == (month(Sys.Date()-1)-1)) %>%
+filter(day(TRANSACTION.DATE.2) < day(Sys.Date())) %>%
+filter(year(TRANSACTION.DATE.2) == year(Sys.Date()-1))
+#group_by(Month_Year) %>%
+#summarise(remitsum = sum(REMITTED_AMOUNT_EXCLUDE_FX_MRG))
+
+x_pivot_mom_dcast <- dcast(x_pivot_mom,DESTINATION_COUNTRY ~ month(TRANSACTION.DATE.2), value.var = "REMITTED_AMOUNT_EXCLUDE_FX_MRG", fun.aggregate=sum) 
+x_pivot_mom_dcast_length <- dcast(x_pivot_mom,DESTINATION_COUNTRY ~ month(TRANSACTION.DATE.2), value.var = "REMITTED_AMOUNT_EXCLUDE_FX_MRG", fun.aggregate=length) 
+
+x_pivot_mom_dcast[,1] <- as.character(x_pivot_mom_dcast[,1])
+x_pivot_mom_dcast[6,1] <- "Nett Spends"
+x_pivot_mom_dcast[6,2:3] <- c(sum(x_pivot_mom_dcast[,2],na.rm=TRUE),sum(x_pivot_mom_dcast[,3],na.rm=TRUE))
+
+x_pivot_mom_dcast_length[,1] <- as.character(x_pivot_mom_dcast_length[,1])
+x_pivot_mom_dcast_length[6,1] <- "Nett Transactions"
+x_pivot_mom_dcast_length[6,2:3] <- c(sum(x_pivot_mom_dcast_length[,2],na.rm=TRUE),sum(x_pivot_mom_dcast_length[,3],na.rm=TRUE))
+
+colnames(x_pivot_mom_dcast)[2:3] <- c(paste("MTD",Sys.Date()-31),paste("MTD",Sys.Date()-1))
+colnames(x_pivot_mom_dcast_length)[2:3] <- c(paste("MTD",Sys.Date()-31),paste("MTD",Sys.Date()-1))
+
+x_pivot_mom_final <- rbind(x_pivot_mom_dcast_length,x_pivot_mom_dcast)
+#((x_pivot_mom_final[,3] - x_pivot_mom_final[,2])/x_pivot_mom_final[,2])*100
+x_pivot_mom_final[,4] <- ((x_pivot_mom_final[,3] - x_pivot_mom_final[,2])/x_pivot_mom_final[,2])*100
+colnames(x_pivot_mom_final)[4] <- "MoM % Variance"
+x_pivot_mom_final[,4] <- paste(round(x_pivot_mom_final[,4],2),"%",sep="")
+
+#Export as excel.
 library(xlsx)
 write.xlsx(x_txn_spend, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx", sheetName="Corridor",row.names=FALSE)
 write.xlsx(x_txn_spend_day, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx", sheetName="Corridor Daily", append = TRUE, row.names=FALSE)
 write.xlsx(y_txn_spend, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx", sheetName="Brand", append = TRUE, row.names=FALSE)
 write.xlsx(y_txn_spend_day, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx", sheetName="Brand Daily", append = TRUE, row.names=FALSE)
+write.xlsx(x_pivot_mom_final, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx", sheetName="MoM % Variance", append = TRUE, row.names=FALSE)
 write.xlsx(x_txn_spend_day_ph, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx", sheetName="Philippines", append = TRUE, row.names=FALSE)
 write.xlsx(x_txn_spend_day_indo, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx", sheetName="Indonesia", append = TRUE, row.names=FALSE)
 
+#If above exporting to Excel fails, try the code below.
 #Create blank workbook
 library(openxlsx)
 
@@ -802,9 +837,11 @@ writeData(OUT, sheet = "Corridor", x = x_txn_spend)
 writeData(OUT, sheet = "Corridor Daily", x = x_txn_spend_day)
 writeData(OUT, sheet = "Brand", x = y_txn_spend)
 writeData(OUT, sheet = "Brand Daily", x = y_txn_spend_day)
+writeData(OUT, sheet = "MoM % Variance", x = x_pivot_mom_final)
 writeData(OUT, sheet = "Philippines", x = x_txn_spend_day_ph)
 writeData(OUT, sheet = "Indonesia", x = x_txn_spend_day_indo)
 
 saveWorkbook(OUT, "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx",overwrite=TRUE)
+
 
 
