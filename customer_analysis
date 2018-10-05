@@ -64,6 +64,9 @@ barplot(Number_of_YORIG_AMT$total,names.arg=Number_of_YTXN_DT$YTXN_DT,main="Tota
 #Handling data issues
 aggr(sql,prop=F,numbers=T)
 
+#outliers
+boxplot(ORIG_AMT ~ TXN_DT, data=sql, main="Outliers") 
+
 #Segmentation
 #RFM segmentation
 sql$lastremit <- as.numeric(difftime(time1=Sys.Date(),time2=sql$TXN_DT,units="days"))
@@ -122,4 +125,37 @@ library(plotly)
 p <- plot_ly(Rerfm_sql_k2, x = Rerfm_sql_k2$recency, y = Rerfm_sql_k2$avgremit, z = Rerfm_sql_k2$frequency, type = "scatter3d", mode = "markers", color = Rerfm_sql_km$cluster)%>% layout(showlegend=FALSE)
 p%>%layout(showlegend=FALSE)
 
+print(p)
+p <- plot
+
+Rerfm_sql_km$centers
+#   recency frequency avgremit
+#1 1.470108  3.787488 5.331899
+#2 3.669924  2.464597 5.545156
+#3 1.650074  1.775143 5.255024
+#4 6.079879  3.202697 5.626000
+#5 6.637921  1.291958 5.632238
+
+rfm_sql_fp <- sqldf("SELECT CUST_MSISDN,MIN(lastremit) AS 'recency',MAX(lastremit) AS 'first_remit',COUNT(*) AS 'frequency', AVG(ORIG_AMT) AS 'avgremit' FROM sql GROUP BY CUST_MSISDN")
+#Rerfm_sql_fp <- rfm_sql_fp
+#Rerfm_sql_fp$recency <- log(rfm_sql_fp$recency)
+#Rerfm_sql_fp$first_remit <- log(rfm_sql_fp$first_remit)
+#Rerfm_sql_fp$frequency <- log(rfm_sql_fp$frequency)
+#Rerfm_sql_fp$avgremit <- log(rfm_sql_fp$avgremit)
+
+customers_2018 <- rfm_sql_fp
+customers_2018$segment <- "NA"
+customers_2018$segment[which(customers_2018$recency > 365*3)] <- "inactive"
+customers_2018$segment[which(customers_2018$recency <= 365*3 & customers_2018$recency > 365*2)] <- "cold"
+customers_2018$segment[which(customers_2018$recency <= 365*2 & customers_2018$recency > 365*1)] <- "warm"
+customers_2018$segment[which(customers_2018$recency <= 365)] <- "active"
+cust_2017 <- aggregate(x=customers_2018[,2:5],by=list(customers_2018$segment),mean)
+names(cust_2017)[names(cust_2017)=="Group.1"] <- "Segments"
+head(cust_2017)
+
+#  Segments    recency first_remit frequency avgremit
+#1   active   69.42791    411.0888 25.972139 278.2203
+#2     cold  900.79659   1054.5487  7.835516 359.6680
+#3 inactive 1540.51300   1641.6297  5.135033 311.4358
+#4     warm  542.56491    760.2487 11.766314 364.0251
 
