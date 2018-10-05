@@ -1,0 +1,125 @@
+#SQL
+SELECT cust_msisdn, txn_dt, orig_amt
+FROM EDWDM.TEDW_SINGCASH_SALESJOURNAL_DOM
+WHERE --b.txn_dt BETWEEN TO_DATE('01-06-2018','DD-MM-YYYY') AND TO_DATE('01-09-2018','DD-MM-YYYY')
+--AND 
+--a.ACCT_TRST_LVL LIKE '%Remittance%' 
+  -- And  b.ACCT_STAT= 'A'
+  --AND --brnd_grp = 'International Money Remittance' 
+(SVC_CLASS_NAME Like '%GCash%'
+OR SVC_CLASS_NAME Like '%Tranglo%'
+OR SVC_CLASS_NAME Like '%TransferTo%'
+OR SVC_CLASS_NAME Like '%Telkomsel%'or SVC_CLASS_NAME like'%bKash%')
+And (STAT = 'PST' OR STAT = 'PST7' OR STAT = 'PST9')
+--And TRUNC(TXN_DT) BETWEEN TO_DATE('05/10/15','DD/MM/YY') AND TO_DATE('06/10/18','DD/MM/YY')
+AND CUST_MSISDN != '6583381170' 
+AND CUST_MSISDN != '6597727199'
+AND CUST_MSISDN != '6596510899'
+And data_txn_rfnd = 'False'
+ORDER BY txn_dt 
+
+#R
+#install.packages("VIM", repos="http://cran.us.r-project.org")
+#install.packages("plotly", repos="http://cran.us.r-project.org")
+library(plotly)
+library(VIM)
+library(dplyr)
+library(ggplot2)
+library(sqldf)
+library(lubridate)
+
+sql <- read.csv("C:\\Users\\P1318124\\Desktop\\Remittance\\customer_analysis_sql.csv",header=TRUE)
+
+summary(sql)
+#CUST_MSISDN          TXN_DT          ORIG_AMT      
+# 6583449787:  1139   30/09/18:  4000   Min.   :   0.01  
+# 6581387475:   835   02/09/18:  3749   1st Qu.:  77.50  
+# 6593365121:   808   09/09/18:  3334   Median : 170.00  
+# 6585919465:   751   23/09/18:  3185   Mean   : 270.76  
+# 6585756541:   708   05/08/18:  2932   3rd Qu.: 388.00  
+# 6598953233:   601   16/09/18:  2926   Max.   :2100.00  
+# (Other)   :783427   (Other) :768143                   
+
+#convert TXN_DT to date type
+sql$TXN_DT <- dmy(sql$TXN_DT)
+
+#create Year (as numeric) based on TXN_DT
+sql$YTXN_DT <- as.numeric(format(sql$TXN_DT,"%Y"))
+
+#Number of transactions per year
+Number_of_YTXN_DT <- sqldf("SELECT YTXN_DT,COUNT(TXN_DT) AS 'counter' FROM sql GROUP BY YTXN_DT")
+
+#Average remitted amount per year
+Number_of_YAVGORIG_AMT <- sqldf("SELECT YTXN_DT,AVG(ORIG_AMT) AS 'average' FROM sql GROUP BY YTXN_DT")
+
+#Total remitted amount per year
+Number_of_YORIG_AMT <- sqldf("SELECT YTXN_DT,SUM(ORIG_AMT) AS 'total' FROM sql GROUP BY YTXN_DT")
+
+#First visualisations
+par(mfrow=c(1,3))
+barplot(Number_of_YTXN_DT$counter, names.arg=Number_of_YTXN_DT$YTXN_DT, main="Number of Transactions",col='#2C3E50')
+barplot(Number_of_YAVGORIG_AMT$average, names.arg=Number_of_YTXN_DT$YTXN_DT, main="Average Remitted Amount", col='#2C3E50')
+barplot(Number_of_YORIG_AMT$total,names.arg=Number_of_YTXN_DT$YTXN_DT,main="Total Remitted Amount",col='#2C3E50')
+
+#Handling data issues
+aggr(sql,prop=F,numbers=T)
+
+#Segmentation
+#RFM segmentation
+sql$lastremit <- as.numeric(difftime(time1=Sys.Date(),time2=sql$TXN_DT,units="days"))
+
+#compute recency,frequency, and average remit amount
+rfm_sql <- sqldf("SELECT CUST_MSISDN,MIN(lastremit) AS 'recency',COUNT(*) AS 'frequency', AVG(ORIG_AMT) AS 'avgremit' FROM sql GROUP BY CUST_MSISDN")
+
+#       CUST_MSISDN recency frequency  avgremit
+#1 16338_6583989037    1901         1   34.0000
+#2  3106_6582100598    1818         2  876.5000
+#3       6581001604      59         8  265.7500
+#4       6581002054    1468         1 1436.0000
+#5       6581002707       4         8  139.2937
+#6       6581003434       7         1   52.5000
+
+par(mfrow=c(1,2))
+#Plot distribution of the frequency of ORIG_AMT
+hist(sql$ORIG_AMT,breaks=80,main="Remittance Amount",xlab="ORIG_AMT",col='#2C3E50')
+#Plot the distribution of the frequency of avgremit
+hist(rfm_sql$avgremit,breaks=80,main="Average Remittance Amount (per customer)", xlab="Average Amount (per customer)",col='#2C3E50')
+
+#Rescale variables
+#Use the logarithm for all the variables:
+Rerfm_sql <- rfm_sql
+Rerfm_sql$recency <- log(rfm_sql$recency)
+Rerfm_sql$frequency <- log(rfm_sql$frequency)
+Rerfm_sql$avgremit <- log(rfm_sql$avgremit)
+
+head(Rerfm_sql)
+summary(Rerfm_sql)
+
+#           CUST_MSISDN       recency        frequency         avgremit     
+# 16338_6583989037:    1   Min.   : -Inf   Min.   :0.0000   Min.   :-1.609  
+# 3106_6582100598 :    1   1st Qu.:2.639   1st Qu.:0.6931   1st Qu.: 4.981  
+# 6581001604      :    1   Median :5.649   Median :1.7918   Median : 5.503  
+# 6581002054      :    1   Mean   : -Inf   Mean   :1.8553   Mean   : 5.440  
+# 6581002707      :    1   3rd Qu.:6.768   3rd Qu.:2.9957   3rd Qu.: 6.004  
+# 6581003434      :    1   Max.   :7.710   Max.   :7.0379   Max.   : 7.632  
+# (Other)         :44606                                                  
+
+par(mfrow=c(1,1))
+#Plot the distribution of the log
+hist(Rerfm_sql$avgremit,breaks=25,main="Log (Average Remittance Amount (per customer))", xlab="Log(Average Amount per customer)",col="#2C3E50")
+#skew to the right.
+
+#1. Run K-means (nstart = 20) and 5 different groups
+Rerfm_sql_k <- Rerfm_sql %>% filter(frequency>0)
+Rerfm_sql_k2 <- Rerfm_sql_k %>% select(recency:avgremit)
+Rerfm_sql_k2[,1] <- as.numeric(Rerfm_sql_k2[,1])
+Rerfm_sql_k2[,2] <- as.numeric(Rerfm_sql_k2[,2])
+Rerfm_sql_k2[,3] <- as.numeric(Rerfm_sql_k2[,3])
+Rerfm_sql_km <- kmeans(na.omit(Rerfm_sql_k2),centers=5,nstart=20)
+
+#Plot using plotly
+library(plotly)
+p <- plot_ly(Rerfm_sql_k2, x = Rerfm_sql_k2$recency, y = Rerfm_sql_k2$avgremit, z = Rerfm_sql_k2$frequency, type = "scatter3d", mode = "markers", color = Rerfm_sql_km$cluster)%>% layout(showlegend=FALSE)
+p%>%layout(showlegend=FALSE)
+
+
