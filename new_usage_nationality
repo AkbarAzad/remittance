@@ -97,7 +97,7 @@ x_pivot_apr <- dcast(xapr, DESTINATION_COUNTRY ~ Month_Year, value.var = "REMITT
 
 x_pivot_jun2 <- x_pivot_jun[,c(1,5,4,2,8,7,6,3)]
 
-x_pivot_apr2 <- x_pivot_apr[,c(1,5,4,8,2,9,7,6,3,11,10)]
+x_pivot_apr2 <- x_pivot_apr[,c(1,5,4,8,2,9,7,6,3,12,11,10)]
 
 x_pivot_merge <- merge(x=x_pivot_jun2,y=x_pivot_apr2,by="DESTINATION_COUNTRY")
 
@@ -132,7 +132,7 @@ x_pivot_apr_count <- dcast(xapr, DESTINATION_COUNTRY ~ Month_Year, value.var = "
 
 x_pivot_jun2_count <- x_pivot_jun_count[,c(1,5,4,2,8,7,6,3)]
 
-x_pivot_apr2_count <- x_pivot_apr_count[,c(1,5,4,8,2,9,7,6,3,11,10)]
+x_pivot_apr2_count <- x_pivot_apr_count[,c(1,5,4,8,2,9,7,6,3,12,11,10)]
 
 x_pivot_merge_count <- merge(x=x_pivot_jun2_count,y=x_pivot_apr2_count,by="DESTINATION_COUNTRY")
 
@@ -616,7 +616,7 @@ y_pivot_apr <- dcast(yapr, BRAND_CATEGORY_NAME ~ Month_Year, value.var = "ORIGIN
 
 y_pivot_jun2 <- y_pivot_jun[,c(1,5,4,2,8,7,6,3)]
 
-y_pivot_apr2 <- y_pivot_apr[,c(1,5,4,8,2,9,7,6,3,11,10)]
+y_pivot_apr2 <- y_pivot_apr[,c(1,5,4,8,2,9,7,6,3,12,11,10)]
 
 y_pivot_merge <- merge(x=y_pivot_jun2,y=y_pivot_apr2,by="BRAND_CATEGORY_NAME")
 
@@ -647,7 +647,7 @@ y_pivot_apr_count <- dcast(yapr, BRAND_CATEGORY_NAME ~ Month_Year, value.var = "
 
 y_pivot_jun2_count <- y_pivot_jun_count[,c(1,5,4,2,8,7,6,3)]
 
-y_pivot_apr2_count <- y_pivot_apr_count[,c(1,5,4,8,2,9,7,6,3,11,10)]
+y_pivot_apr2_count <- y_pivot_apr_count[,c(1,5,4,8,2,9,7,6,3,12,11,10)]
 
 y_pivot_merge_count <- merge(x=y_pivot_jun2_count,y=y_pivot_apr2_count,by="BRAND_CATEGORY_NAME")
 
@@ -842,6 +842,7 @@ writeData(OUT, sheet = "Philippines", x = x_txn_spend_day_ph)
 writeData(OUT, sheet = "Indonesia", x = x_txn_spend_day_indo)
 
 saveWorkbook(OUT, "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx",overwrite=TRUE)
+
 
 
 
