@@ -782,7 +782,7 @@ y_txn_spend_day <- y_txn_spend_day[,-c(2:305)]
 #write.xlsx(list_of_datasets,file="C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx")
 
 
-#MoM % Variance.
+#MoM % Variance
 library(dplyr)
 x_pivot_mom <- x_pivot %>%
 filter(month(TRANSACTION.DATE.2) == month(Sys.Date()-1) | month(TRANSACTION.DATE.2) == (month(Sys.Date()-1)-1)) %>%
@@ -802,8 +802,8 @@ x_pivot_mom_dcast_length[,1] <- as.character(x_pivot_mom_dcast_length[,1])
 x_pivot_mom_dcast_length[6,1] <- "Nett Transactions"
 x_pivot_mom_dcast_length[6,2:3] <- c(sum(x_pivot_mom_dcast_length[,2],na.rm=TRUE),sum(x_pivot_mom_dcast_length[,3],na.rm=TRUE))
 
-colnames(x_pivot_mom_dcast)[2:3] <- c(paste("MTD",Sys.Date()-31),paste("MTD",Sys.Date()-1))
-colnames(x_pivot_mom_dcast_length)[2:3] <- c(paste("MTD",Sys.Date()-31),paste("MTD",Sys.Date()-1))
+colnames(x_pivot_mom_dcast)[2:3] <- c(paste("MTD",Sys.Date()-32),paste("MTD",Sys.Date()-1))
+colnames(x_pivot_mom_dcast_length)[2:3] <- c(paste("MTD",Sys.Date()-32),paste("MTD",Sys.Date()-1))
 
 x_pivot_mom_final <- rbind(x_pivot_mom_dcast_length,x_pivot_mom_dcast)
 #((x_pivot_mom_final[,3] - x_pivot_mom_final[,2])/x_pivot_mom_final[,2])*100
@@ -811,7 +811,7 @@ x_pivot_mom_final[,4] <- ((x_pivot_mom_final[,3] - x_pivot_mom_final[,2])/x_pivo
 colnames(x_pivot_mom_final)[4] <- "MoM % Variance"
 x_pivot_mom_final[,4] <- paste(round(x_pivot_mom_final[,4],2),"%",sep="")
 
-#Export as excel.
+
 library(xlsx)
 write.xlsx(x_txn_spend, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx", sheetName="Corridor",row.names=FALSE)
 write.xlsx(x_txn_spend_day, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx", sheetName="Corridor Daily", append = TRUE, row.names=FALSE)
@@ -821,7 +821,6 @@ write.xlsx(x_pivot_mom_final, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\
 write.xlsx(x_txn_spend_day_ph, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx", sheetName="Philippines", append = TRUE, row.names=FALSE)
 write.xlsx(x_txn_spend_day_indo, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx", sheetName="Indonesia", append = TRUE, row.names=FALSE)
 
-#If above exporting to Excel fails, try the code below.
 #Create blank workbook
 library(openxlsx)
 
@@ -830,6 +829,7 @@ addWorksheet(OUT,"Corridor")
 addWorksheet(OUT,"Corridor Daily")
 addWorksheet(OUT,"Brand")
 addWorksheet(OUT,"Brand Daily")
+addWorksheet(OUT,"MoM % Variance")
 addWorksheet(OUT,"Indonesia")
 addWorksheet(OUT,"Philippines")
 
