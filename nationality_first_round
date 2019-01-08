@@ -1,4 +1,6 @@
-install.packages("epitools", repos="http://cran.us.r-project.org")
+#install.packages("epitools", repos="http://cran.us.r-project.org")
+#install.packages("taskscheduleR", repos="http://cran.us.r-project.org")
+#library(taskscheduleR)
 library(XLConnect)
 library(readxl)
 library(xlsx)
@@ -11,9 +13,17 @@ library(eeptools)
 
 #natly <- read_excel("C:\\Users\\P1318124\\Downloads\\0. Template Remit and Prepaid Topup (1).xlsx","Remit raw")
 
-natly <- read.csv("C:\\Users\\P1318124\\Downloads\\Nationality_Original.csv",header=TRUE)
+#natly <- read.csv("C:\\Users\\P1318124\\Downloads\\Revised_Nationality_NEW.csv",header=TRUE)
 
-natly_day <- read.csv("C:\\Users\\P1318124\\Desktop\\Remittance\\Daily Telepin Reports\\03 Aug\\RepResult.4.Report_Remittance_Nationality.S.1.Daily_Report_Remittance_by_Nationality_20180803063000.csv",header=TRUE)
+natly <- read.csv("C:\\Users\\P1318124\\Downloads\\Revised_Nationality_FY1819.csv",header=TRUE)
+
+#natly <- natly[as.Date(natly$TRANSACTION.DATE.2,'%Y-%m-%d')>'2017-12-31',]
+
+natly <- natly[as.Date(natly$TRANSACTION.DATE.2,'%Y-%m-%d')>='2018-04-01',]
+
+#natly2 <- read.csv("C:\\Users\\P1318124\\Downloads\\Nationality_Original.csv",header=TRUE)
+
+natly_day <- read.csv("C:\\Users\\P1318124\\Desktop\\Remittance\\Daily Telepin Reports\\07 Jan\\RepResult.4.Report_Remittance_Nationality.S.1.Daily_Report_Remittance_by_Nationality_20190107063000.csv",header=TRUE)
 
 dim(natly)#726265     41
 dim(natly_day) #2306   31
@@ -82,8 +92,8 @@ head(as.character(x[,31]))
 head(as.character(y[,31]))
 
 #y[,31] <- as.numeric(y[,31])
-y[,31] <- as.character(y[,31])
-x[,31] <- as.character(x[,31])
+#y[,31] <- as.character(y[,31])
+#x[,31] <- as.character(x[,31])
 
 ################################################################################################################
 
@@ -115,13 +125,13 @@ y_m <- as.integer(y_m)
 
 y2 <- cbind(y,y_m)
 
-x_year <- year(x[,2])
-x_month <- month(x[,2])
-x_ym <- data.frame(x_year,x_month) %>%
-unite(k,c(x_year,x_month),sep="",remove=FALSE)
-x_m <- x_ym[,1]
-x_m <- as.integer(x_m)
-x[,32] <- x_m
+#x_year <- year(x[,2])
+#x_month <- month(x[,2])
+#x_ym <- data.frame(x_year,x_month) %>%
+#unite(k,c(x_year,x_month),sep="",remove=FALSE)
+#x_m <- x_ym[,1]
+#x_m <- as.integer(x_m)
+#x[,32] <- x_m
 
 ################################################################################################################
 
@@ -158,11 +168,34 @@ fx_margin <- y$FX_MARGIN_SGD
 
 for(i in 1:nrow(y)){
 
-fx_margin[i] <- fx_margin[i]/(-1)
+if(y$FX_MARGIN_SGD[i] < 0){
 
+fx_margin[i] <- fx_margin[i]*(-1)
+
+}
 }
 
 y5 <- cbind(y4,fx_margin)
+
+
+x_fx_margin <- x$FX_MARGIN_SGD_NEGATIVE
+#for(i in 1:nrow(x)){
+#if(x$FX_MARGIN_SGD_NEGATIVE < 0){
+#x_fx_margin[i] <- x_fx_margin[i]*(-1)
+#}
+#}
+
+x_fx <-lapply(x_fx_margin, function(p) if(p<0){ p<- p*(-1)} else{p <- p})
+
+x_fx <- unlist(x_fx)
+
+x[,35] <- x_fx_margin
+
+
+
+
+
+
 
 ###########################################################################################################
 
@@ -185,12 +218,12 @@ stringsAsFactors=FALSE)
 y_week_final <- y_week[,3]
 #result_2_final <- result_2_final[-(length(result_2_final))]
 
-x_week <- data.frame(x[,2],
-cut_Date=cut(as.Date(x[,2]),"week", start.on.monday=FALSE),
-cut_POSIXt=cut(as.POSIXct(x[,2]),"week",start.on.monday=FALSE),
-stringsAsFactors=FALSE) 
-x_week_final <- x_week[,3]
-x[,36] <- x_week_final
+#x_week <- data.frame(x[,2],
+#cut_Date=cut(as.Date(x[,2]),"week", start.on.monday=FALSE),
+#cut_POSIXt=cut(as.POSIXct(x[,2]),"week",start.on.monday=FALSE),
+#stringsAsFactors=FALSE) 
+#x_week_final <- x_week[,3]
+#x[,36] <- x_week_final
 
 y6 <- cbind(y5,y_week_final)
 
@@ -198,27 +231,27 @@ y6 <- cbind(y5,y_week_final)
 
 #FY#
 
-y_fy <- rep("FY1819",nrow(y)) ###########MANUAL###########
+y_fy <- rep("FY1819",nrow(y)) ###########@@@@@@@@@MANUAL@@@@@@@@@@@@###########
 y_fy <- as.factor(y_fy)
 
-x_fy <- rep("FY1718",nrow(x))
+#x_fy <- rep("FY1718",nrow(x))
 
-for(i in 1:length(x_fy)){
-if(as.character(x[,2][i])>="2018-04-01"){
-x_fy[i] <- "FY1819"
-}
-}
+#for(i in 1:length(x_fy)){
+#if(as.character(x[,2][i])>="2018-04-01"){
+#x_fy[i] <- "FY1819"
+#}
+#}
 
-x$FY <- as.factor(x_fy)
+#x$FY <- as.factor(x_fy)
 
 y7 <- cbind(y6,y_fy)
 
 #########################################################################################################
 
 #TEST.USERS#
-6583381170
-6597727199
-6596510899
+#6583381170
+#6597727199
+#6596510899
 
 test.users_vec <- c(6583381170,6597727199,6596510899)
 
@@ -232,13 +265,13 @@ y_test.users[i] <- "YES"
 
 y_test.users <- as.factor(y_test.users)
 
-x_test.users <- rep("NO",nrow(x))
+#x_test.users <- rep("NO",nrow(x))
 
-for(i in 1:nrow(x)){
-if(as.character(x$SOURCE_MSISDN)[i] %in% c('6583381170','6597727199','6596510899')){
-x_test.users[i] <- "YES"
-}
-}
+#for(i in 1:nrow(x)){
+#if(as.character(x$SOURCE_MSISDN)[i] %in% c('6583381170','6597727199','6596510899')){
+#x_test.users[i] <- "YES"
+#}
+#}
 
 #x_test <- x %>%
 #filter(as.character(SOURCE_MSISDN) %in% c('6583381170','6597727199','6596510899'),as.character(TEST.USERS) == "NO")
@@ -279,7 +312,112 @@ colnames(y10) <- colnames(x)
 
 final_natly <- rbind(x,y10)
 
-write.csv(final_natly,"C:\\Users\\P1318124\\Downloads\\Revised_Nationality.csv")
+dim(x)
+
+dim(y10)
+
+dim(final_natly)
+
+head(final_natly)
+
+tail(final_natly)
+
+
+
+##########################################################################################################
+#########################################################################################################
+########################################################################################################
+#######################################################################################################
+######################################################################################################
+#####################################################################################################
+####################################################################################################
+####################################################################################################
+#####################################################################################################
+######################################################################################################
+#######################################################################################################
+#Run backup every Monday or Tuesday.
+#write.csv(final_natly,"C:\\Users\\P1318124\\Downloads\\Revised_Nationality_Backup.csv")
+#write.csv(final_natly,"C:\\Users\\P1318124\\Downloads\\Revised_Nationality_Backup_NEW.csv")
+#write.csv(final_natly,"C:\\Users\\P1318124\\Downloads\\Revised_Nationality_NEW.csv")
+#write.csv(final_natly,"C:\\Users\\P1318124\\Downloads\\Revised_Nationality_NEW.csv")
+write.csv(final_natly,"C:\\Users\\P1318124\\Downloads\\Revised_Nationality_FY1819.csv")
 
 
 #UPDATED TILL REPORTING DAY 03 AUG 2018#
+#UPDATED TILL REPORTING DAY 04 AUG 2018#
+#UPDATED TILL REPORTING DAY 05 AUG 2018#
+#UPDATED TILL REPORTING DAY 06 AUG 2018#
+#UPDATED TILL REPORTING DAY 07 AUG 2018#
+#UPDATED TILL REPORTING DAY 08 AUG 2018#
+#UPDATED TILL REPORTING DAY 09 AUG 2018#
+#UPDATED TILL REPORTING DAY 10 AUG 2018#
+#UPDATED TILL REPORTING DAY 11 AUG 2018#
+#UPDATED TILL REPORTING DAY 12 AUG 2018#
+#UPDATED TILL REPORTING DAY 13 AUG 2018#
+#UPDATED TILL REPORTING DAY 14 AUG 2018#
+#UPDATED TILL REPORTING DAY 15 AUG 2018#
+#UPDATED TILL REPORTING DAY 16 AUG 2018#
+#UPDATED TILL REPORTING DAY 17 AUG 2018#
+#UPDATED TILL REPORTING DAY 18 AUG 2018#
+#UPDATED TILL REPORTING DAY 19 AUG 2018#
+#UPDATED TILL REPORTING DAY 20 AUG 2018#
+#UPDATED TILL REPORTING DAY 21 AUG 2018#
+#UPDATED TILL REPORTING DAY 22 AUG 2018#
+#UPDATED TILL REPORTING DAY 23 AUG 2018#
+#UPDATED TILL REPORTING DAY 24 AUG 2018#
+#UPDATED TILL REPORTING DAY 25 AUG 2018#
+#UPDATED TILL REPORTING DAY 26 AUG 2018#
+#UPDATED TILL REPORTING DAY 27 AUG 2018#
+#UPDATED TILL REPORTING DAY 28 AUG 2018#
+#UPDATED TILL REPORTING DAY 29 AUG 2018#
+#UPDATED TILL REPORTING DAY 30 AUG 2018#
+#UPDATED TILL REPORTING DAY 31 AUG 2018#
+#UPDATED TILL REPORTING DAY 01 SEP 2018#
+#UPDATED TILL REPORTING DAY 02 SEP 2018#
+#UPDATED TILL REPORTING DAY 03 SEP 2018#
+#UPDATED TILL REPORTING DAY 04 SEP 2018#
+#UPDATED TILL REPORTING DAY 05 SEP 2018#
+#UPDATED TILL REPORTING DAY 06 SEP 2018#
+#UPDATED TILL REPORTING DAY 07 SEP 2018#
+#UPDATED TILL REPORTING DAY 08 SEP 2018#
+#UPDATED TILL REPORTING DAY 09 SEP 2018#
+#UPDATED TILL REPORTING DAY 10 SEP 2018#
+#UPDATED TILL REPORTING DAY 11 SEP 2018#
+#UPDATED TILL REPORTING DAY 12 SEP 2018#
+#UPDATED TILL REPORTING DAY 13 SEP 2018#
+#UPDATED TILL REPORTING DAY 14 SEP 2018#
+#UPDATED TILL REPORTING DAY 17 SEP 2018#
+#UPDATED TILL REPORTING DAY 15 SEP 2018#
+#UPDATED TILL REPORTING DAY 16 SEP 2018#
+#UPDATED TILL REPORTING DAY 18 SEP 2018#
+#UPDATED TILL REPORTING DAY 19 SEP 2018#
+#UPDATED TILL REPORTING DAY 20 SEP 2018#
+#UPDATED TILL REPORTING DAY 21 SEP 2018#
+#UPDATED TILL REPORTING DAY 22 SEP 2018#
+#UPDATED TILL REPORTING DAY 23 SEP 2018#
+#UPDATED TILL REPORTING DAY 24 SEP 2018#
+#UPDATED TILL REPORTING DAY 25 SEP 2018#
+#UPDATED TILL REPORTING DAY 26 SEP 2018#
+#UPDATED TILL REPORTING DAY 27 SEP 2018#
+#UPDATED TILL REPORTING DAY 28 SEP 2018#
+#UPDATED TILL REPORTING DAY 29 SEP 2018#
+#UPDATED TILL REPORTING DAY 30 SEP 2018#
+#UPDATED TILL REPORTING DAY 01 OCT 2018#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
