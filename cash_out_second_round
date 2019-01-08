@@ -8,13 +8,20 @@ library(eeptools)
 library(XLConnect)
 library(readxl)
 
-cash_out_raw <- read.csv("C:\\Users\\P1318124\\Downloads\\Revised_Cash_Out.csv",header=TRUE)
+#cash_out_raw <- read.csv("C:\\Users\\P1318124\\Downloads\\Revised_Cash_Out.csv",header=TRUE)
+#cash_out_raw2 <- cash_out_raw %>%
+#filter(as.Date(REPORT_DAY,format='%Y-%m-%d') >= '2018-04-01')
+#write.csv(cash_out_raw2,"C:\\Users\\P1318124\\Downloads\\Revised_Cash_Out_FY1819.csv")
+#cash_out_raw <- cash_out_raw2
+
+cash_out_raw <- read.csv("C:\\Users\\P1318124\\Downloads\\Revised_Cash_Out_FY1819.csv",header=TRUE)
+
 
 #cash_out_raw <- read.csv("C:\\Users\\P1318124\\Downloads\\Cash Out Raw.csv",header=TRUE)
 
-cash_out_daily <- read.csv("C:\\Users\\P1318124\\Desktop\\Remittance\\Daily Telepin Reports\\11 Sep\\RepResult.21.Daily_Report_CashOut.S.1.Daily_Report_for_Cash_Out_20180911000100.csv",header=TRUE)
 
-#cash_out_daily <- read.csv("C:\\Users\\P1318124\\Desktop\\Remittance\\Daily Telepin Reports\\03 Aug\\RepResult.21.Daily_Report_CashOut.S.1.Daily_Report_for_Cash_Out_20180803000100.csv",header=TRUE)
+cash_out_daily <- read.csv("C:\\Users\\P1318124\\Desktop\\Remittance\\Daily Telepin Reports\\07 Jan\\RepResult.21.Daily_Report_CashOut.S.1.Daily_Report_for_Cash_Out_20190107000100.csv",header=TRUE)
+
 
 cash_out_daily_filtered <- cash_out_daily %>%
 filter(BRAND_CATEGORY_NAME %in% c("SingTel mRemit","SingTel Prepaid Top Up"))
@@ -207,48 +214,18 @@ tail(final_cash_out)
 #################################
 ################################
 
+#Run backup every Monday or Tuesday.
+#write.csv(final_cash_out,"C:\\Users\\P1318124\\Downloads\\Revised_Cash_Out_Backup.csv")
+#write.csv(final_cash_out,"C:\\Users\\P1318124\\Downloads\\Revised_Cash_Out.csv")
+write.csv(final_cash_out,"C:\\Users\\P1318124\\Downloads\\Revised_Cash_Out_FY1819.csv")
 
-write.csv(final_cash_out,"C:\\Users\\P1318124\\Downloads\\Revised_Cash_Out.csv")
 
 #Updated till REPORT_DAY 03 AUG 2018#
 #Updated till REPORT_DAY 04 AUG 2018#
 #Updated till REPORT_DAY 05 AUG 2018#
 #Updated till REPORT_DAY 06 AUG 2018#
-#Updated till REPORT_DAY 07 AUG 2018#
-#Updated till REPORT_DAY 08 AUG 2018#
-#Updated till REPORT_DAY 09 AUG 2018#
-#Updated till REPORT_DAY 10 AUG 2018#
-#Updated till REPORT_DAY 11 AUG 2018#
-#Updated till REPORT_DAY 12 AUG 2018#
-#Updated till REPORT_DAY 13 AUG 2018#
-#Updated till REPORT_DAY 14 AUG 2018#
-#Updated till REPORT_DAY 15 AUG 2018#
-#Updated till REPORT_DAY 16 AUG 2018#
-#Updated till REPORT_DAY 17 AUG 2018#
-#Updated till REPORT_DAY 18 AUG 2018#
-#Updated till REPORT_DAY 19 AUG 2018#
-#Updated till REPORT_DAY 20 AUG 2018#
-#Updated till REPORT_DAY 21 AUG 2018#
-#Updated till REPORT_DAY 22 AUG 2018#
-#Updated till REPORT_DAY 23 AUG 2018#
-#Updated till REPORT_DAY 24 AUG 2018#
-#Updated till REPORT_DAY 25 AUG 2018#
-#Updated till REPORT_DAY 26 AUG 2018#
-#Updated till REPORT_DAY 27 AUG 2018#
-#Updated till REPORT_DAY 28 AUG 2018#
-#Updated till REPORT_DAY 29 AUG 2018#
-#Updated till REPORT_DAY 30 AUG 2018#
-#Updated till REPORT_DAY 31 AUG 2018#
-#Updated till REPORT_DAY 01 SEP 2018#
-#Updated till REPORT_DAY 02 SEP 2018#
-#Updated till REPORT_DAY 03 SEP 2018#
-#Updated till REPORT_DAY 04 SEP 2018#
-#Updated till REPORT_DAY 05 SEP 2018#
-#Updated till REPORT_DAY 06 SEP 2018#
-#Updated till REPORT_DAY 07 SEP 2018#
-#Updated till REPORT_DAY 08 SEP 2018#
-#Updated till REPORT_DAY 09 SEP 2018#
-#Updated till REPORT_DAY 10 SEP 2018#
-#Updated till REPORT_DAY 11 SEP 2018#
+
+
+
 
 
