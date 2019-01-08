@@ -16,12 +16,17 @@ library(lubridate)
 
 #x<- final_natly
 
-final_natly <- read.csv("C:\\Users\\P1318124\\Downloads\\Revised_Nationality_NEW.csv",header=TRUE)
-final_cash_out <- read.csv("C:\\Users\\P1318124\\Downloads\\Revised_Cash_Out.csv",header=TRUE)
+final_natly <- read.csv("C:\\Users\\P1318124\\Downloads\\Revised_Nationality_FY1819.csv",header=TRUE)
+final_cash_out <- read.csv("C:\\Users\\P1318124\\Downloads\\Revised_Cash_Out_FY1819.csv",header=TRUE)
+#final_natly_old <- read.csv("C:\\Users\\P1318124\\Downloads\\Revised_Nationality_Backup.csv",header=TRUE)
 
 x <- final_natly
-
+#y <- final_natly_old
 #x <- vt
+#y_pivot <- y %>%
+#filter(TRANSACTION_STATUS == "PST" | TRANSACTION_STATUS == "PST7"| TRANSACTION_STATUS == "PST9") %>%
+#filter(MARK == "Completion") %>%
+#filter(TEST.USERS != "YES") 
 
 x_pivot <- x %>%
 filter(TRANSACTION_STATUS == "PST" | TRANSACTION_STATUS == "PST7"| TRANSACTION_STATUS == "PST9") %>%
@@ -29,19 +34,37 @@ filter(MARK == "Completion") %>%
 filter(TEST.USERS != "YES") 
 
 x_pivot <- x_pivot[,-c(1)]
+#y_pivot <- y_pivot[,-c(1)]
 
 x_pivot <- distinct(x_pivot)
+#y_pivot <- distinct(y_pivot)
 
 x_pivot$Month_Abb <- month.abb[month(x_pivot[,2])]
+#y_pivot$Month_Abb <- month.abb[month(y_pivot[,2])]
 
 x_pivot$Year <- year(x_pivot[,2])
+#y_pivot$Year <- year(y_pivot[,2])
 
 x_pivot$Month_Year <- paste(x_pivot$Month_Abb,x_pivot$Year, sep = "-")
+#y_pivot$Month_Year <- paste(y_pivot$Month_Abb,y_pivot$Year, sep = "-")
 
 #x_pivot <- x %>%
 #filter(TRANSACTION_STATUS == "RFDS) %>%
 #filter(MARK == "Completion") %>%
 #filter(TEST.USERS != "YES") 
+
+#COUNTER & MOBILE REMITTANCE
+x_pivot_counter_mobile_val <- dcast(x_pivot, SERVICE_ORIGIN ~ Month_Year, value.var = "REMITTED_AMOUNT_EXCLUDE_FX_MRG", fun.aggregate=sum)
+x_pivot_counter_mobile_count <- dcast(x_pivot, SERVICE_ORIGIN ~ Month_Year, value.var = "REMITTED_AMOUNT_EXCLUDE_FX_MRG", fun.aggregate=length)
+#y_pivot_counter_mobile_val <- dcast(y_pivot, SERVICE_ORIGIN ~ Month_Year, value.var = "REMITTED_AMOUNT_EXCLUDE_FX_MRG", fun.aggregate=sum)
+#y_pivot_counter_mobile_count <- dcast(y_pivot, SERVICE_ORIGIN ~ Month_Year, value.var = "REMITTED_AMOUNT_EXCLUDE_FX_MRG", fun.aggregate=length)
+
+write.csv(x_pivot_counter_mobile_val,"C:\\Users\\P1318124\\Desktop\\Remittance\\x_pivot_counter_mobile_val.csv",row.names=FALSE)
+write.csv(x_pivot_counter_mobile_count,"C:\\Users\\P1318124\\Desktop\\Remittance\\x_pivot_counter_mobile_count.csv",row.names=FALSE)
+#write.csv(y_pivot_counter_mobile_val,"C:\\Users\\P1318124\\Desktop\\Remittance\\y_pivot_counter_mobile_val.csv",row.names=FALSE)
+#write.csv(y_pivot_counter_mobile_count,"C:\\Users\\P1318124\\Desktop\\Remittance\\y_pivot_counter_mobile_count.csv",row.names=FALSE)
+
+
 
 #x_pivot_mtdactive <- sqldf("SELECT TRANSACTION_DATE, DESTINATION_COUNTRY,BRAND_NAME,REMITTED_AMOUNT_SGD,SOURCE_MSISDN FROM x_pivot")
 x_pivot_mtdactive_month <- sqldf("SELECT Month_Year,COUNT(DISTINCT SOURCE_MSISDN) FROM x_pivot GROUP BY Month_Year")
@@ -93,7 +116,7 @@ filter(Year == 2017)
 x_pivot_jun <- dcast(xjun, DESTINATION_COUNTRY ~ Month_Year, value.var = "REMITTED_AMOUNT_EXCLUDE_FX_MRG", fun.aggregate=sum)
 
 xapr <- x_pivot %>%
-filter(Year == 2018)
+filter(Year == 2018 || Year ==  2019)
 
 x_pivot_apr <- dcast(xapr, DESTINATION_COUNTRY ~ Month_Year, value.var = "REMITTED_AMOUNT_EXCLUDE_FX_MRG", fun.aggregate=sum)
 
@@ -103,7 +126,7 @@ x_pivot_apr <- dcast(xapr, DESTINATION_COUNTRY ~ Month_Year, value.var = "REMITT
 
 x_pivot_jun2 <- x_pivot_jun[,c(1,5,4,2,8,7,6,3)]
 
-x_pivot_apr2 <- x_pivot_apr[,c(1,6,5,9,2,10,8,7,3,13,12,11,4)]
+x_pivot_apr2 <- x_pivot_apr[,c(1,2,8,7,6,3,11,10,9,4,5)]
 
 #x_pivot_merge <- merge(x=x_pivot_jun2,y=x_pivot_apr2,by="DESTINATION_COUNTRY")
 
@@ -139,7 +162,7 @@ x_pivot_apr_count <- dcast(xapr, DESTINATION_COUNTRY ~ Month_Year, value.var = "
 
 x_pivot_jun2_count <- x_pivot_jun_count[,c(1,5,4,2,8,7,6,3)]
 
-x_pivot_apr2_count <- x_pivot_apr_count[,c(1,6,5,9,2,10,8,7,3,13,12,11,4)]
+x_pivot_apr2_count <- x_pivot_apr_count[,c(1,2,8,7,6,3,11,10,9,4,5)]
 
 x_pivot_merge_count <- x_pivot_apr2_count
 
@@ -250,6 +273,7 @@ write.csv(x_txn_spend_day,"C:\\Users\\P1318124\\Desktop\\Remittance\\Nett Overal
 
 #############################################################################################################################
 #############################################################################################################################
+library(DescTools)
 x_pivot_day_indo <- x_pivot %>%
 filter(BRAND_NAME %like any% c('%Indo%', '%Telkomsel%'))
 
@@ -788,7 +812,7 @@ yjun <- y_pivot2 %>%
 filter(Year == 2017)
 
 yapr <- y_pivot2 %>%
-filter(Year == 2018)
+filter(Year == 2018 || Year == 2019)
 
 y_pivot_jun <- dcast(yjun, BRAND_CATEGORY_NAME ~ Month_Year, value.var = "ORIGINAL_AMOUNT", fun.aggregate=sum)
 
@@ -796,7 +820,7 @@ y_pivot_apr <- dcast(yapr, BRAND_CATEGORY_NAME ~ Month_Year, value.var = "ORIGIN
 
 y_pivot_jun2 <- y_pivot_jun[,c(1,5,4,2,8,7,6,3)]
 
-y_pivot_apr2 <- y_pivot_apr[,c(1,6,5,9,2,10,8,7,3,13,12,11,4)]
+y_pivot_apr2 <- y_pivot_apr[,c(1,2,9,7,6,3,12,11,10,4,5)]
 
 #y_pivot_merge <- merge(x=y_pivot_jun2,y=y_pivot_apr2,by="BRAND_CATEGORY_NAME")
 
@@ -829,7 +853,7 @@ y_pivot_apr_count <- dcast(yapr, BRAND_CATEGORY_NAME ~ Month_Year, value.var = "
 
 y_pivot_jun2_count <- y_pivot_jun_count[,c(1,5,4,2,8,7,6,3)]
 
-y_pivot_apr2_count <- y_pivot_apr_count[,c(1,6,5,9,2,10,8,7,3,13,12,11,4)]
+y_pivot_apr2_count <- y_pivot_apr_count[,c(1,2,9,7,6,3,12,11,10,4,5)]
 
 #y_pivot_merge_count <- merge(x=y_pivot_jun2_count,y=y_pivot_apr2_count,by="BRAND_CATEGORY_NAME")
 
@@ -968,10 +992,18 @@ filter(as.character(TRANSACTION.DATE.2) > "2018-08-25")
 
 #MoM % Variance
 library(dplyr)
+#x_pivot_mom <- x_pivot %>%
+#filter(month(TRANSACTION.DATE.2) == month(Sys.Date()-1) | month(TRANSACTION.DATE.2) == (month(Sys.Date()-1)-1)) %>%
+#filter(day(TRANSACTION.DATE.2) < day(Sys.Date())) %>%
+#filter(year(TRANSACTION.DATE.2) == year(Sys.Date()-1))
+##group_by(Month_Year) %>%
+##summarise(remitsum = sum(REMITTED_AMOUNT_EXCLUDE_FX_MRG))
+
+
 x_pivot_mom <- x_pivot %>%
-filter(month(TRANSACTION.DATE.2) == month(Sys.Date()-1) | month(TRANSACTION.DATE.2) == (month(Sys.Date()-1)-1)) %>%
-filter(day(TRANSACTION.DATE.2) < day(Sys.Date())) %>%
-filter(year(TRANSACTION.DATE.2) == year(Sys.Date()-1))
+filter(Month_Year == 'Dec-2018' | Month_Year == 'Jan-2019')%>% 
+filter(day(TRANSACTION.DATE.2) < day(Sys.Date()))
+#filter(year(TRANSACTION.DATE.2) == year(Sys.Date()-1))
 #group_by(Month_Year) %>%
 #summarise(remitsum = sum(REMITTED_AMOUNT_EXCLUDE_FX_MRG))
 
@@ -988,12 +1020,17 @@ x_pivot_mom_dcast_length[,1] <- as.character(x_pivot_mom_dcast_length[,1])
 x_pivot_mom_dcast_length[6,1] <- "Nett Transactions"
 x_pivot_mom_dcast_length[6,2:3] <- c(sum(x_pivot_mom_dcast_length[,2],na.rm=TRUE),sum(x_pivot_mom_dcast_length[,3],na.rm=TRUE))
 
-colnames(x_pivot_mom_dcast)[2:3] <- c(paste("MTD",Sys.Date()-31),paste("MTD",Sys.Date()-1))
-colnames(x_pivot_mom_dcast_length)[2:3] <- c(paste("MTD",Sys.Date()-31),paste("MTD",Sys.Date()-1))
+
+#colnames(x_pivot_mom_dcast)[2:3] <- c(paste("MTD",Sys.Date()-32),paste("MTD",Sys.Date()-1))
+#colnames(x_pivot_mom_dcast_length)[2:3] <- c(paste("MTD",Sys.Date()-32),paste("MTD",Sys.Date()-1))
+
+colnames(x_pivot_mom_dcast)[2:3] <- c(paste("MTD",Sys.Date()-1),paste("MTD",Sys.Date()-32))
+colnames(x_pivot_mom_dcast_length)[2:3] <- c(paste("MTD",Sys.Date()-1),paste("MTD",Sys.Date()-32))
+
 
 x_pivot_mom_final <- rbind(x_pivot_mom_dcast_length,x_pivot_mom_dcast)
 #((x_pivot_mom_final[,3] - x_pivot_mom_final[,2])/x_pivot_mom_final[,2])*100
-x_pivot_mom_final[,4] <- ((x_pivot_mom_final[,3] - x_pivot_mom_final[,2])/x_pivot_mom_final[,2])*100
+x_pivot_mom_final[,4] <- ((x_pivot_mom_final[,2] - x_pivot_mom_final[,3])/x_pivot_mom_final[,3])*100
 colnames(x_pivot_mom_final)[4] <- "MoM % Variance"
 x_pivot_mom_final[,4] <- paste(round(x_pivot_mom_final[,4],2),"%",sep="")
 
@@ -1039,6 +1076,16 @@ writeData(OUT, sheet = "India", x = x_txn_spend_day_india)
 writeData(OUT, sheet = "Bangladesh", x = x_txn_spend_day_bg)
 
 saveWorkbook(OUT, "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx",overwrite=TRUE)
+
+
+
+
+
+
+
+
+
+
 
 
 
