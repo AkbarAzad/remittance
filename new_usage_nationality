@@ -1078,7 +1078,3 @@ writeData(OUT, sheet = "Bangladesh", x = x_txn_spend_day_bg)
 saveWorkbook(OUT, "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx",overwrite=TRUE)
 
 
-
-
-
-
