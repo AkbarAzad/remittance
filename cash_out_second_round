@@ -24,7 +24,7 @@ cash_out_raw <- read.csv("C:\\Users\\P1318124\\Downloads\\Revised_Cash_Out_FY181
 #cash_out_raw <- read.csv("C:\\Users\\P1318124\\Downloads\\Cash Out Raw.csv",header=TRUE)
 
 
-cash_out_daily <- read.csv("C:\\Users\\P1318124\\Desktop\\Remittance\\Daily Telepin Reports\\09 Jan\\RepResult.21.Daily_Report_CashOut.S.1.Daily_Report_for_Cash_Out_20190109000100.csv",header=TRUE)
+cash_out_daily <- read.csv("C:\\Users\\P1318124\\Desktop\\Remittance\\Daily Telepin Reports\\03 Jan\\RepResult.21.Daily_Report_CashOut.S.1.Daily_Report_for_Cash_Out_20190103000100.csv",header=TRUE)
 
 
 cash_out_daily_filtered <- cash_out_daily %>%
@@ -225,33 +225,6 @@ write.csv(final_cash_out,"C:\\Users\\P1318124\\Downloads\\Revised_Cash_Out_FY181
 
 
 #Updated till REPORT_DAY 03 AUG 2018#
-#Updated till REPORT_DAY 04 AUG 2018#
-#Updated till REPORT_DAY 05 AUG 2018#
-#Updated till REPORT_DAY 06 AUG 2018#
-#Updated till REPORT_DAY 07 AUG 2018#
-#Updated till REPORT_DAY 08 AUG 2018#
-#Updated till REPORT_DAY 09 AUG 2018#
-#Updated till REPORT_DAY 10 AUG 2018#
-#Updated till REPORT_DAY 11 AUG 2018#
-#Updated till REPORT_DAY 12 AUG 2018#
-#Updated till REPORT_DAY 13 AUG 2018#
-#Updated till REPORT_DAY 14 AUG 2018#
-#Updated till REPORT_DAY 15 AUG 2018#
-#Updated till REPORT_DAY 16 AUG 2018#
-#Updated till REPORT_DAY 17 AUG 2018#
-#Updated till REPORT_DAY 18 AUG 2018#
-#Updated till REPORT_DAY 19 AUG 2018#
-#Updated till REPORT_DAY 20 AUG 2018#
-#Updated till REPORT_DAY 21 AUG 2018#
-#Updated till REPORT_DAY 22 AUG 2018#
-#Updated till REPORT_DAY 23 AUG 2018#
-#Updated till REPORT_DAY 24 AUG 2018#
-#Updated till REPORT_DAY 25 AUG 2018#
-#Updated till REPORT_DAY 26 AUG 2018#
-#Updated till REPORT_DAY 27 AUG 2018#
-#Updated till REPORT_DAY 28 AUG 2018#
-#Updated till REPORT_DAY 29 AUG 2018#
-#Updated till REPORT_DAY 30 AUG 2018#
-#Updated till REPORT_DAY 31 AUG 2018#
-#Updated till REPORT_DAY 01 SEP 2018#
-#Updated till REPORT_DAY 02 SEP 2018#
+
+
+
