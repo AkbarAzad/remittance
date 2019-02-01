@@ -1,0 +1,98 @@
+#power bi
+#go to Edit Queries
+#split Postal code column, 1 characted as far left, then convert new column to text to keep leading zeros
+#column = data[Country]&","&LEFT(data[PostalCode],6)
+
+
+
+
+
+library(sqldf)
+library(dplyr)
+library(scales)
+library(lubridate)
+
+#customer rfm model for remittance from Jan-2018 to Dec-2018
+#data from beginning of time till 31 Dec 2018
+#data <- read.csv("C:\\Users\\P1318124\\Desktop\\BA Projects\\Remittance_BA\\Remittance_RFM\\remittance_rfm_data.csv",header=TRUE)
+data <- read.csv("C:\\Users\\P1318124\\Desktop\\BA Projects\\Remittance_BA\\Remittance_RFM\\remittance_rfm_data_2017.csv",header=TRUE)
+#data <- read.csv("C:\\Users\\P1318124\\Desktop\\BA Projects\\Remittance_BA\\Remittance_RFM\\remittance_rfm_data_2018.csv",header=TRUE)
+
+dim(data)
+head(data)
+class(data)
+str(data)
+summary(data)
+
+data$SCR_ACCT_ID <- as.factor(data$SCR_ACCT_ID)
+class(data$MIN_TXN_DATE)
+class(data$MIN_DAYS_SINCE)
+
+
+#eda
+hist(data$TXNS)
+hist(data$TXNS,breaks=1000)
+
+hist(data$MIN_DAYS_SINCE)
+hist(data$AVG_AMT)
+hist(data$AVG_AMT,breaks=100)
+
+
+#complex segmentation based on recency
+data$segment <- "NA"
+#data$segment[which(data$MIN_DAYS_SINCE > 30*12)] <- "inactive"
+data$segment[which(data$MIN_DAYS_SINCE > 30*9)] <- "inactive"
+data$segment[which(data$MIN_DAYS_SINCE <= 30*9 & data$MIN_DAYS_SINCE > 30*6)] <- "cold"
+data$segment[which(data$MIN_DAYS_SINCE <= 30*6 & data$MIN_DAYS_SINCE > 30*3)] <- "warm"
+data$segment[which(data$MIN_DAYS_SINCE <= 30*3)] <- "active"
+
+table(data$segment)
+
+aggregate(x = data[,2:10],by=list(data$segment),mean)
+
+data$segment[which(data$segment=="warm" & data$MAX_DAYS_SINCE <= 30*6)] <- "new warm"
+data$segment[which(data$segment=="warm" & data$AVG_AMT <300)] <- "warm low value"
+data$segment[which(data$segment=="warm" & data$AVG_AMT >=300)] <- "warm high value"
+data$segment[which(data$segment=="active" & data$MAX_DAYS_SINCE <= 30*3)] <- "new active"
+data$segment[which(data$segment=="active" & data$AVG_AMT < 300)] <- "active low value"
+data$segment[which(data$segment=="active" & data$AVG_AMT >=300)] <- "active high value"
+
+
+table(data$segment)
+aggregate(x = data[,2:10],by=list(data$segment),mean)
+
+pie(table(data$segment),labels=c("inactive",
+"cold","warm high value","warm low value","new warm","active high value",
+"active low value","new active"),main="Pie")
+
+#re-order factor in segment
+data$segment <- factor(x = data$segment, levels = c("inactive",
+"cold","warm high value","warm low value","new warm","active high value",
+"active low value","new active"))
+
+table(data$segment)
+aggregate(x = data[,2:10],by=list(data$segment),mean)
+
+#write.csv(data,"C:\\Users\\P1318124\\Desktop\\BA Projects\\Remittance_BA\\Remittance_RFM\\remittance_rfm_segment.csv",row.names=FALSE)
+write.csv(data,"C:\\Users\\P1318124\\Desktop\\BA Projects\\Remittance_BA\\Remittance_RFM\\remittance_rfm_segment_2017.csv",row.names=FALSE)
+#write.csv(data,"C:\\Users\\P1318124\\Desktop\\BA Projects\\Remittance_BA\\Remittance_RFM\\remittance_rfm_segment_2018.csv",row.names=FALSE)
+
+
+
+##########################################################################################
+#######################################
+#################
+########
+####
+##
+#
+#
+
+
+
+
+
+
+
+
+
