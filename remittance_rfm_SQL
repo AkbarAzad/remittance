@@ -1,6 +1,42 @@
 
-SELECT c.scr_acct_id, c.min_txn_date,c.max_txn_date,c.min_amt,c.max_amt,c.avg_amt,c.sum_amt,c.txns,c.min_days_since,c.max_days_since,c.postal_code, c.city_name,d.expiry_date
-FROM
+#entire base
+--SELECT c.scr_acct_id, c.min_txn_date,c.max_txn_date,c.min_amt,c.max_amt,c.avg_amt,c.sum_amt,c.txns,c.min_days_since,c.max_days_since,c.postal_code, c.city_name,d.expiry_date
+--FROM
+--(
+
+SELECT scr_acct_id,to_char( MIN(txn_dt),'DD-MM-YYYY') AS min_txn_date,to_char( MAX(txn_dt),'DD-MM-YYYY') AS max_txn_date, MIN(orig_amt) AS min_amt,
+MAX(orig_amt) AS max_amt, AVG(orig_amt) AS avg_amt, SUM(orig_amt) AS sum_amt,COUNT(orig_amt) AS txns, TRUNC(TO_DATE('01-01-2019','DD-MM-YYYY') - MAX(txn_dt)) AS min_days_since,
+TRUNC(TO_DATE('01-01-2019','DD-MM-YYYY') - MIN(txn_dt)) AS max_days_since, b.acct_idn_expiry,CONCAT('"', b.acct_pstl_cd) AS postal_code, b.city_name--, to_date(b.acct_idn_expiry,'DD-MM-YYYY') AS acct_idn_expiry_date
+FROM EDWDM.TEDW_SINGCASH_SALESJOURNAL_DOM a
+INNER JOIN 
+EDWDM.TEDW_SINGCASH_ACCOUNT b
+ON a.scr_acct_id = b.acct_id
+WHERE (brnd_grp LIKE '%International Money Remittance%')
+And (STAT = 'PST' OR STAT = 'PST7' OR STAT = 'PST9')
+--AND TRUNC(TXN_DT) < TO_DATE('01/01/2019','DD/MM/YYYY')
+AND TXN_DT BETWEEN TO_DATE('01/01/2018','DD/MM/YYYY') AND TO_DATE('01/01/2019','DD/MM/YYYY')
+AND CUST_MSISDN != '6583381170' 
+AND CUST_MSISDN != '6597727199'
+AND CUST_MSISDN != '6596510899'
+And data_txn_rfnd = 'False'
+GROUP BY scr_acct_id, b.acct_idn_expiry,b.acct_pstl_cd,b.city_name --) c
+
+--LEFT JOIN
+--(SELECT acct_id, acct_idn_expiry, to_char(to_date(acct_idn_expiry,'DD-MM-YYYY'),'DD-MM-YYYY') AS expiry_date
+--FROM EDWDM.TEDW_SINGCASH_ACCOUNT
+--WHERE acct_idn_expiry NOT LIKE '%null%'
+--AND acct_idn_expiry NOT LIKE '%EXPIRY%') d
+--ON c.scr_acct_id = d.acct_id
+
+
+
+#2018 transactions
+
+SELECT c.scr_acct_id,c.min_txn_date,c.max_txn_date,c.min_amt,
+c.max_amt,c.avg_amt,c.sum_amt,c.txns,c.min_days_since,
+c.max_days_since, c.acct_idn_expiry,c.postal_code, c.city_name,d.txn_dt--, to_date(b.acct_idn_expiry,'DD-MM-YYYY') AS acct_idn_expiry_date
+FROM 
+
 (SELECT scr_acct_id,to_char( MIN(txn_dt),'DD-MM-YYYY') AS min_txn_date,to_char( MAX(txn_dt),'DD-MM-YYYY') AS max_txn_date, MIN(orig_amt) AS min_amt,
 MAX(orig_amt) AS max_amt, AVG(orig_amt) AS avg_amt, SUM(orig_amt) AS sum_amt,COUNT(orig_amt) AS txns, TRUNC(TO_DATE('01-01-2019','DD-MM-YYYY') - MAX(txn_dt)) AS min_days_since,
 TRUNC(TO_DATE('01-01-2019','DD-MM-YYYY') - MIN(txn_dt)) AS max_days_since, b.acct_idn_expiry,CONCAT('"', b.acct_pstl_cd) AS postal_code, b.city_name--, to_date(b.acct_idn_expiry,'DD-MM-YYYY') AS acct_idn_expiry_date
@@ -17,12 +53,12 @@ AND CUST_MSISDN != '6596510899'
 And data_txn_rfnd = 'False'
 GROUP BY scr_acct_id, b.acct_idn_expiry,b.acct_pstl_cd,b.city_name ) c
 
-LEFT JOIN
-(SELECT acct_id, acct_idn_expiry, to_char(to_date(acct_idn_expiry,'DD-MM-YYYY'),'DD-MM-YYYY') AS expiry_date
-FROM EDWDM.TEDW_SINGCASH_ACCOUNT
-WHERE acct_idn_expiry NOT LIKE '%null%'
-AND acct_idn_expiry NOT LIKE '%EXPIRY%') d
+INNER JOIN EDWDM.TEDW_SINGCASH_SALESJOURNAL_DOM d
 ON c.scr_acct_id = d.acct_id
+WHERE d.txn_dt BETWEEN TO_DATE('01-01-2018','DD-MM-YYYY') AND TO_DATE('01-01-2019','DD-MM-YYYY')
+
+
+
 
 
 
