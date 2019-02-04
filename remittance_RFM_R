@@ -15,8 +15,8 @@ library(lubridate)
 #customer rfm model for remittance from Jan-2018 to Dec-2018
 #data from beginning of time till 31 Dec 2018
 #data <- read.csv("C:\\Users\\P1318124\\Desktop\\BA Projects\\Remittance_BA\\Remittance_RFM\\remittance_rfm_data.csv",header=TRUE)
-data <- read.csv("C:\\Users\\P1318124\\Desktop\\BA Projects\\Remittance_BA\\Remittance_RFM\\remittance_rfm_data_2017.csv",header=TRUE)
-#data <- read.csv("C:\\Users\\P1318124\\Desktop\\BA Projects\\Remittance_BA\\Remittance_RFM\\remittance_rfm_data_2018.csv",header=TRUE)
+#data <- read.csv("C:\\Users\\P1318124\\Desktop\\BA Projects\\Remittance_BA\\Remittance_RFM\\remittance_rfm_data_2017.csv",header=TRUE)
+data <- read.csv("C:\\Users\\P1318124\\Desktop\\BA Projects\\Remittance_BA\\Remittance_RFM\\remittance_rfm_data_2018.csv",header=TRUE)
 
 dim(data)
 head(data)
@@ -41,19 +41,21 @@ hist(data$AVG_AMT,breaks=100)
 #complex segmentation based on recency
 data$segment <- "NA"
 #data$segment[which(data$MIN_DAYS_SINCE > 30*12)] <- "inactive"
-data$segment[which(data$MIN_DAYS_SINCE > 30*9)] <- "inactive"
-data$segment[which(data$MIN_DAYS_SINCE <= 30*9 & data$MIN_DAYS_SINCE > 30*6)] <- "cold"
-data$segment[which(data$MIN_DAYS_SINCE <= 30*6 & data$MIN_DAYS_SINCE > 30*3)] <- "warm"
-data$segment[which(data$MIN_DAYS_SINCE <= 30*3)] <- "active"
+data$segment[which(data$MIN_DAYS_SINCE > 31*9)] <- "inactive"
+data$segment[which(data$MIN_DAYS_SINCE <= 31*9 & data$MIN_DAYS_SINCE > 31*6)] <- "cold"
+data$segment[which(data$MIN_DAYS_SINCE <= 31*6 & data$MIN_DAYS_SINCE > 31*3)] <- "warm"
+data$segment[which(data$MIN_DAYS_SINCE <= 31*3)] <- "active"
 
 table(data$segment)
 
 aggregate(x = data[,2:10],by=list(data$segment),mean)
 
-data$segment[which(data$segment=="warm" & data$MAX_DAYS_SINCE <= 30*6)] <- "new warm"
+#31 days and not 30 days because latest date ie MAX_TXN_DATE lowest value is 1. See sql query
+
+data$segment[which(data$segment=="warm" & data$MAX_DAYS_SINCE <= 31*6)] <- "new warm"
 data$segment[which(data$segment=="warm" & data$AVG_AMT <300)] <- "warm low value"
 data$segment[which(data$segment=="warm" & data$AVG_AMT >=300)] <- "warm high value"
-data$segment[which(data$segment=="active" & data$MAX_DAYS_SINCE <= 30*3)] <- "new active"
+data$segment[which(data$segment=="active" & data$MAX_DAYS_SINCE <= 31*3)] <- "new active"
 data$segment[which(data$segment=="active" & data$AVG_AMT < 300)] <- "active low value"
 data$segment[which(data$segment=="active" & data$AVG_AMT >=300)] <- "active high value"
 
@@ -74,8 +76,8 @@ table(data$segment)
 aggregate(x = data[,2:10],by=list(data$segment),mean)
 
 #write.csv(data,"C:\\Users\\P1318124\\Desktop\\BA Projects\\Remittance_BA\\Remittance_RFM\\remittance_rfm_segment.csv",row.names=FALSE)
-write.csv(data,"C:\\Users\\P1318124\\Desktop\\BA Projects\\Remittance_BA\\Remittance_RFM\\remittance_rfm_segment_2017.csv",row.names=FALSE)
-#write.csv(data,"C:\\Users\\P1318124\\Desktop\\BA Projects\\Remittance_BA\\Remittance_RFM\\remittance_rfm_segment_2018.csv",row.names=FALSE)
+#write.csv(data,"C:\\Users\\P1318124\\Desktop\\BA Projects\\Remittance_BA\\Remittance_RFM\\remittance_rfm_segment_2017.csv",row.names=FALSE)
+write.csv(data,"C:\\Users\\P1318124\\Desktop\\BA Projects\\Remittance_BA\\Remittance_RFM\\remittance_rfm_segment_2018.csv",row.names=FALSE)
 
 
 
@@ -88,6 +90,258 @@ write.csv(data,"C:\\Users\\P1318124\\Desktop\\BA Projects\\Remittance_BA\\Remitt
 #
 #
 
+#CALIBRATION MODEL
+data_17 <- read.csv("C:\\Users\\P1318124\\Desktop\\BA Projects\\Remittance_BA\\Remittance_RFM\\remittance_rfm_segment_2017.csv",header=TRUE)
+data_18 <- read.csv("C:\\Users\\P1318124\\Desktop\\BA Projects\\Remittance_BA\\Remittance_RFM\\remittance_rfm_segment_2018.csv",header=TRUE)
+
+colnames(data_17)
+colnames(data_18)
+dim(data_17)
+dim(data_18)
+
+data_17$SCR_ACCT_ID <- as.factor(data_17$SCR_ACCT_ID)
+data_18$SCR_ACCT_ID <- as.factor(data_18$SCR_ACCT_ID)
+
+revenue_2018 <- sqldf("SELECT SCR_ACCT_ID, SUM_AMT FROM data_18")
+colnames(revenue_2018)
+dim(revenue_2018)
+class(revenue_2018$SCR_ACCT_ID)
+class(data_17$SCR_ACCT_ID)
+
+data_merge <- merge(data_17,revenue_2018, by = 'SCR_ACCT_ID',all.x = TRUE)
+colnames(data_merge)
+dim(data_merge)
+
+colnames(data_merge)[15] <- "revenue_2018"
+
+data_merge$revenue_2018[is.na(data_merge$revenue_2018)] <- 0
+data_merge$active_2018 <- ifelse(data_merge$revenue_2018 == 0,0,1)
+
+dim(data_merge)
+colnames(data_merge)
+head(data_merge)
+
+#PROBABILITY MODEL
+#whether customers in 2017 going to be active in 2018
+library(nnet)
+prob.model <- multinom(formula = active_2018 ~ MIN_DAYS_SINCE + MAX_DAYS_SINCE + TXNS + AVG_AMT + MAX_AMT,
+data = data_merge)
+ 
+summary(prob.model)
+
+coef <- summary(prob.model)$coefficients
+std <- summary(prob.model)$standard.errors
+print(coef)
+print(std)
+print(coef/std)
+
+#LM
+#ow much customers in 2017 conribute to 2018 revenue
+#for monetary model, select only customers who made a purchase in 2018
+z <- which(data_merge$active_2018 == 1)
+head(data_merge[z,])
+summary(data_merge[z,])
+
+#calibrate monetary model
+amount.model <- lm(formula = revenue_2018 ~ MIN_DAYS_SINCE + AVG_AMT + TXNS + MAX_AMT, data = data_merge[z,])
+summary(amount.model)
+plot(x = data_merge[z,]$revenue_2018, y = amount.model$fitted.values)
+
+
+#log model
+amount.model2 <- lm(formula = log(revenue_2018) ~ log(MIN_DAYS_SINCE) + log(AVG_AMT) + log(MAX_AMT) + log(TXNS), data = data_merge[z,])
+summary(amount.model2)
+plot(x = data_merge[z,]$revenue_2018, y = exp(amount.model2$fitted.values))
+
+
+
+
+
+#predict target variables based on today's customers
+data_18$prob_predicted <- predict(object = prob.model, newdata = data_18,type = "probs")
+data_18$revenue_predicted <- predict(object = amount.model,newdata = data_18)
+data_18$score_predicted <- data_18$prob_predicted * data_18$revenue_predicted
+summary(data_18$prob_predicted)
+summary(data_18$revenue_predicted)
+summary(data_18$score_predicted)
+
+hist(data_18$prob_predicted)
+hist(data_18$revenue_predicted)
+hist(data_18$score_predicted)
+
+
+#more than $5000
+z <- which(data_18$score_predicted > 5000)
+
+y <- print((length(z))/dim(data_18)[1])
+
+#45% of customers in 2018 will generate more than $5000 in revenue the next year
+
+
+
+#data cleaning
+data_merge_rev <- data_merge[which(data_merge$MAX_AMT <= 1000),]
+data_merge_rev <- data_merge[which(data_merge$AVG_AMT <= 900),]
+data_merge_rev <- data_merge[which(log(data_merge$TXNS) <= 5),]
+
+#log model
+w <- which(data_merge_rev$active_2018 == 1)
+amount.model3 <- lm(formula = log(revenue_2018) ~ log(MIN_DAYS_SINCE) + log(AVG_AMT) + log(MAX_AMT) + log(TXNS), data = data_merge_rev[w,])
+summary(amount.model2)
+plot(x = data_merge_rev[w,]$revenue_2018, y = exp(amount.model3$fitted.values))
+
+amount.model4 <- lm(formula = revenue_2018 ~ MIN_AMT+MAX_AMT+AVG_AMT+SUM_AMT.x+TXNS+MIN_DAYS_SINCE+MAX_DAYS_SINCE, data = data_merge_rev[w,])
+summary(amount.model4)
+plot(x = data_merge_rev[w,]$revenue_2018, y = amount.model4$fitted.values)
+
+#choose variables
+#install.packages("leaps", repos="http://cran.us.r-project.org")
+#install.packages("MASS", repos="http://cran.us.r-project.org")
+library(leaps)
+library(MASS)
+
+leaps <- regsubsets(revenue_2018 ~ MIN_AMT+MAX_AMT+AVG_AMT+SUM_AMT.x+TXNS+MIN_DAYS_SINCE+MAX_DAYS_SINCE,data = data_merge[z,])
+plot(leaps,scale="adjr2")
+
+leaps2 <- regsubsets(revenue_2018 ~ MIN_AMT+MAX_AMT+AVG_AMT+SUM_AMT.x+TXNS+MIN_DAYS_SINCE+MAX_DAYS_SINCE,data = data_merge_rev[w,])
+plot(leaps2,scale="adjr2")
+
+amount.model5 <- lm(formula = log(revenue_2018) ~ log(MIN_AMT)+log(MAX_AMT)+log(AVG_AMT)+log(SUM_AMT.x)+log(TXNS)+log(MIN_DAYS_SINCE)+log(MAX_DAYS_SINCE), data = data_merge_rev[w,])
+summary(amount.model5)
+plot(x = data_merge_rev[w,]$revenue_2018, y = amount.model5$fitted.values)
+
+#stepwise regression
+amount.model6 <- lm(revenue_2018 ~ MIN_AMT+MAX_AMT+AVG_AMT+SUM_AMT.x+TXNS+MIN_DAYS_SINCE+MAX_DAYS_SINCE,data = data_merge_rev[w,])
+selectedMod <- step(amount.model6)
+summary(selectedMod)
+
+library(car)
+all_vifs <- car::vif(selectedMod)
+print(all_vifs)
+
+#MAX_AMT,AVG_AMT,SUM_AMT.x,TXNS have higher vifs of at least 3
+amount.model7 <- lm(revenue_2018 ~ MAX_AMT+AVG_AMT+SUM_AMT.x+TXNS,data = data_merge_rev[w,])
+summary(amount.model7)
+plot(x = data_merge_rev[w,]$revenue_2018, y = amount.model7$fitted.values)
+
+
+#TRANSITION MATRIX
+#customers in one segment transferring to same or other segments the next year
+#reorder segment
+data_17$segment <- factor(x=data_17$segment,levels=c("inactive","cold","warm high value","warm low value","new warm","active high value","active low value","new active"))
+data_18$segment <- factor(x=data_18$segment,levels=c("inactive","cold","warm high value","warm low value","new warm","active high value","active low value","new active"))
+
+#COMPUTE TRANSITION MATRIX
+
+data_merge2 <- merge(data_17,data_18,by="SCR_ACCT_ID",all.x=TRUE)
+head(data_merge2)
+colnames(data_merge2)
+dim(data_merge2)
+
+transition <- table(data_merge2$segment.x,data_merge2$segment.y)
+print(transition)
+
+#                    inactive cold warm high value warm low value new warm active high value active low value new active
+#  inactive                22   12               5              5        8                38               48         32
+#  cold                    20   24               7             14       14                62               83         37
+#  warm high value         32   22              11             14        9                79               39         15
+#  warm low value          23   12               6             16        8                23               81         13
+#  new warm                19   18               7              7       12                42               56         25
+#  active high value      395  342             230             71       31              1739              667         37
+#  active low value       298  349              62            263       12               494             3236         27
+#  new active             188  185              61             88       12               411              936         18
+
+#divide each row by its sum
+transition_row <- transition/rowSums(transition)
+print(transition_row)
+
+#                       inactive        cold warm high value warm low value    new warm active high value active low value  new active
+#  inactive          0.129411765 0.070588235     0.029411765    0.029411765 0.047058824       0.223529412      0.282352941 0.188235294
+#  cold              0.076628352 0.091954023     0.026819923    0.053639847 0.053639847       0.237547893      0.318007663 0.141762452
+#  warm high value   0.144796380 0.099547511     0.049773756    0.063348416 0.040723982       0.357466063      0.176470588 0.067873303
+#  warm low value    0.126373626 0.065934066     0.032967033    0.087912088 0.043956044       0.126373626      0.445054945 0.071428571
+#  new warm          0.102150538 0.096774194     0.037634409    0.037634409 0.064516129       0.225806452      0.301075269 0.134408602
+#  active high value 0.112471526 0.097380410     0.065489749    0.020216401 0.008826879       0.495159453      0.189920273 0.010535308
+#  active low value  0.062855938 0.073613162     0.013077410    0.055473529 0.002531112       0.104197427      0.682556423 0.005695001
+#  new active        0.098999473 0.097419695     0.032122170    0.046340179 0.006319115       0.216429700      0.492890995 0.009478673
+
+#initialise a matrix with number of customers in each segment in 2018 and after 10 years
+#prediction
+
+groups <- matrix(nrow=8,ncol=11)
+groups[,1] <- table(data_18$segment)
+colnames(groups) <- 2018:2028
+row.names(groups) <- levels(data_18$segment)
+print(groups)
+
+#compute for each year
+#matrix multiplication
+for(i in 2:11) {
+groups[,i] <- groups[,i-1] %*% transition_row
+}
+
+print(groups)
+
+#how segments look like
+#inactive
+barplot(groups[1,])
+
+#active high value
+barplot(groups[6,])
+
+print(round(groups))
+
+#                   2018  2019  2020  2021  2022  2023  2024  2025  2026  2027  2028
+#inactive           1479  2308  2293  2305  2309  2311  2312  2313  2313  2313  2313
+#cold               1735  2203  2125  2132  2134  2135  2135  2135  2135  2135  2135
+#warm high value     586   789   790   800   804   806   807   807   807   807   807
+#warm low value      826  1204  1203  1197  1194  1193  1193  1192  1192  1192  1192
+#new warm            818   377   424   424   425   426   426   426   427   427   427
+#active high value  4669  5790  5913  5975  6004  6017  6023  6026  6028  6028  6029
+#active low value  10674 12420 12158 12078 12037 12018 12009 12005 12003 12003 12002
+#new active         5196   892  1077  1071  1075  1076  1077  1077  1077  1077  1078
+
+#COMPUTE CLV DISCOUNTED 
+
+
+yearly_revenue <- sqldf("SELECT segment, (SUM(SUM_AMT))/(COUNT(SCR_ACCT_ID)) AS ARPU FROM data_18 GROUP BY 1")
+
+revenue_per_segment <- yearly_revenue[,2] * groups
+print(revenue_per_segment)
+
+#                        2018       2019       2020       2021       2022       2023       2024     2025       2026       2027     2028
+#inactive          11985187.1 18699806.9 18578419.6 18680427.3 18714633.1 18731230.3 18738957.7 18742574 18744265.4 18745056.2 18745426
+#cold               8222434.3 10438021.0 10070285.1 10103793.7 10112029.8 10116460.0 10118503.9 10119462 10119909.3 10120118.7 10120217
+#warm high value    1342685.7  1808919.3  1810994.1  1833504.2  1841981.7  1846057.8  1847957.1  1848846  1849261.0  1849455.3  1849546
+#warm low value     1086078.0  1583604.4  1582397.2  1574042.5  1570599.1  1568975.1  1568217.9  1567864  1567698.2  1567620.8  1567585
+#new warm            819030.1   377149.5   424844.6   424633.1   426027.4   426618.1   426900.2   427032   427093.7   427122.6   427136
+#active high value  3043415.0  3774112.6  3854111.2  3894904.0  3913529.8  3922245.8  3926318.7  3928223  3929113.5  3929529.9  3929725
+#active low value  70326091.4 81830058.0 80100540.4 79575915.3 79307671.1 79183250.2 79124977.7 79097730 79084989.0 79079031.0 79076245
+#new active        14387936.2  2470834.0  2982352.8  2966092.1  2976355.8  2980222.7  2982095.7  2982969  2983378.2  2983569.4  2983659
+
+
+#compute yearly revenue for rest of 10 years
+yearly_revenue <- colSums(revenue_per_segment)
+print(round(yearly_revenue))
+barplot(yearly_revenue)
+
+#cumulative revenue
+cum_revenue <- cumsum(yearly_revenue)
+print(round(cum_revenue))
+barplot(cum_revenue)
+
+#discount factor of 10%
+discount_rate <- 0.10
+discount <- 1 / ((1+discount_rate) ^ ((1:11) - 1))
+print(discount)
+
+#compute discounted yearly revenue
+disc_yearly_revenue <- yearly_revenue * discount
+print(round(disc_yearly_revenue))
+barplot(disc_yearly_revenue)
+
+#database worth
+print(disc_yearly_revenue[11] - yearly_revenue[1])
 
 
 
