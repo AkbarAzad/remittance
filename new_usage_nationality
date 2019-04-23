@@ -17,7 +17,7 @@ library(lubridate)
 #x<- final_natly
 
 final_natly <- read.csv("C:\\Users\\P1318124\\Downloads\\Revised_Nationality_FY1819.csv",header=TRUE)
-final_cash_out <- read.csv("C:\\Users\\P1318124\\Downloads\\Revised_Cash_Out_FY1819.csv",header=TRUE)
+#final_cash_out <- read.csv("C:\\Users\\P1318124\\Downloads\\Revised_Cash_Out_FY1819.csv",header=TRUE)
 #final_natly_old <- read.csv("C:\\Users\\P1318124\\Downloads\\Revised_Nationality_Backup.csv",header=TRUE)
 
 x <- final_natly
@@ -64,13 +64,17 @@ write.csv(x_pivot_counter_mobile_count,"C:\\Users\\P1318124\\Desktop\\Remittance
 #write.csv(y_pivot_counter_mobile_val,"C:\\Users\\P1318124\\Desktop\\Remittance\\y_pivot_counter_mobile_val.csv",row.names=FALSE)
 #write.csv(y_pivot_counter_mobile_count,"C:\\Users\\P1318124\\Desktop\\Remittance\\y_pivot_counter_mobile_count.csv",row.names=FALSE)
 
+#x_pivot_mtdactive_FY1819 <- sqldf("SELECT COUNT(DISTINCT ORIGINATOR_ACCOUNT_ID) FROM x_pivot")
+#write.csv(x_pivot_mtdactive_FY1819,"C:\\Users\\P1318124\\Desktop\\Remittance\\x_pivot_mtdactive_FY1819.csv",row.names=FALSE)
 
+x_pivot_mtdactive_FY1920 <- sqldf("SELECT COUNT(DISTINCT ORIGINATOR_ACCOUNT_ID) FROM x_pivot WHERE Month_Year IN ('Apr-2019', 'May-2019','Jun-2019','Jul-2019','Aug-2019','Sep-2019','Oct-2019','Nov-2019','Dec-2019','Jan-2020','Feb-2020','Mar-2020')")
+write.csv(x_pivot_mtdactive_FY1920,"C:\\Users\\P1318124\\Desktop\\Remittance\\x_pivot_mtdactive_FY1920.csv",row.names=FALSE)
 
 #x_pivot_mtdactive <- sqldf("SELECT TRANSACTION_DATE, DESTINATION_COUNTRY,BRAND_NAME,REMITTED_AMOUNT_SGD,SOURCE_MSISDN FROM x_pivot")
-x_pivot_mtdactive_month <- sqldf("SELECT Month_Year,COUNT(DISTINCT SOURCE_MSISDN) FROM x_pivot GROUP BY Month_Year")
+x_pivot_mtdactive_month <- sqldf("SELECT Month_Year,COUNT(DISTINCT ORIGINATOR_ACCOUNT_ID) FROM x_pivot GROUP BY Month_Year")
 write.csv(x_pivot_mtdactive_month,"C:\\Users\\P1318124\\Desktop\\Remittance\\x_pivot_mtdactive_month.csv",row.names=FALSE)
 
-x_pivot_mtdactive_month_natly <- sqldf("SELECT Month_Year,DESTINATION_COUNTRY,COUNT(DISTINCT SOURCE_MSISDN) FROM x_pivot GROUP BY Month_Year, DESTINATION_COUNTRY")
+x_pivot_mtdactive_month_natly <- sqldf("SELECT Month_Year,DESTINATION_COUNTRY,COUNT(DISTINCT ORIGINATOR_ACCOUNT_ID) FROM x_pivot GROUP BY Month_Year, DESTINATION_COUNTRY")
 write.csv(x_pivot_mtdactive_month_natly,"C:\\Users\\P1318124\\Desktop\\Remittance\\x_pivot_mtdactive_month_natly.csv",row.names=FALSE)
 
 
@@ -126,7 +130,7 @@ x_pivot_apr <- dcast(xapr, DESTINATION_COUNTRY ~ Month_Year, value.var = "REMITT
 
 x_pivot_jun2 <- x_pivot_jun[,c(1,5,4,2,8,7,6,3)]
 
-x_pivot_apr2 <- x_pivot_apr[,c(1,2,8,7,6,3,11,10,9,4,5)]
+x_pivot_apr2 <- x_pivot_apr[,c(1,2,11,9,8,4,14,13,12,5,7,6,10,3)]
 
 #x_pivot_merge <- merge(x=x_pivot_jun2,y=x_pivot_apr2,by="DESTINATION_COUNTRY")
 
@@ -143,7 +147,7 @@ x_pivot_final <- rbind(x_pivot_merge,x_pivot_sum)
 
 x_pivot_final[,1] <- as.character(x_pivot_final[,1])
 
-x_pivot_final[6,1] <- "Nett Spends"
+x_pivot_final[7,1] <- "Nett Spends"
 
 #write.csv(x_pivot_final,"C:\\Users\\P1318124\\Desktop\\Remittance\\Nett Spends.csv",row.names=FALSE)
 
@@ -162,7 +166,7 @@ x_pivot_apr_count <- dcast(xapr, DESTINATION_COUNTRY ~ Month_Year, value.var = "
 
 x_pivot_jun2_count <- x_pivot_jun_count[,c(1,5,4,2,8,7,6,3)]
 
-x_pivot_apr2_count <- x_pivot_apr_count[,c(1,2,8,7,6,3,11,10,9,4,5)]
+x_pivot_apr2_count <- x_pivot_apr_count[,c(1,2,11,9,8,4,14,13,12,5,7,6,10,3)]
 
 x_pivot_merge_count <- x_pivot_apr2_count
 
@@ -178,7 +182,7 @@ x_pivot_final_count <- rbind(x_pivot_merge_count,x_pivot_sum_count)
 
 x_pivot_final_count[,1] <- as.character(x_pivot_final_count[,1])
 
-x_pivot_final_count[6,1] <- "Nett Transactions"
+x_pivot_final_count[7,1] <- "Nett Transactions"
 
 #write.csv(x_pivot_final_count,"C:\\Users\\P1318124\\Desktop\\Remittance\\Nett Transactions.csv",row.names=FALSE)
 
@@ -229,7 +233,7 @@ x_pivot_finalday <- rbind(x_pivot_day,x_pivot_sumday)
 
 x_pivot_finalday[,1] <- as.character(x_pivot_finalday[,1])
 
-x_pivot_finalday[6,1] <- "Nett Spends"
+x_pivot_finalday[7,1] <- "Nett Spends"
 
 #write.csv(x_pivot_finalday,"C:\\Users\\P1318124\\Desktop\\Remittance\\Nett Spends_Day.csv",row.names=FALSE)
 
@@ -253,7 +257,7 @@ x_pivot_finaldaycount <- rbind(x_pivot_daycount,x_pivot_sumdaycount)
 
 x_pivot_finaldaycount[,1] <- as.character(x_pivot_finaldaycount[,1])
 
-x_pivot_finaldaycount[6,1] <- "Nett Transactions"
+x_pivot_finaldaycount[7,1] <- "Nett Transactions"
 
 #write.csv(x_pivot_finaldaycount,"C:\\Users\\P1318124\\Desktop\\Remittance\\Nett Transactions_Day.csv",row.names=FALSE)
 
@@ -820,7 +824,7 @@ y_pivot_apr <- dcast(yapr, BRAND_CATEGORY_NAME ~ Month_Year, value.var = "ORIGIN
 
 y_pivot_jun2 <- y_pivot_jun[,c(1,5,4,2,8,7,6,3)]
 
-y_pivot_apr2 <- y_pivot_apr[,c(1,2,9,7,6,3,12,11,10,4,5)]
+y_pivot_apr2 <- y_pivot_apr[,c(1,2,12,9,8,4,15,14,13,5,7,6,11,3)]
 
 #y_pivot_merge <- merge(x=y_pivot_jun2,y=y_pivot_apr2,by="BRAND_CATEGORY_NAME")
 
@@ -853,7 +857,7 @@ y_pivot_apr_count <- dcast(yapr, BRAND_CATEGORY_NAME ~ Month_Year, value.var = "
 
 y_pivot_jun2_count <- y_pivot_jun_count[,c(1,5,4,2,8,7,6,3)]
 
-y_pivot_apr2_count <- y_pivot_apr_count[,c(1,2,9,7,6,3,12,11,10,4,5)]
+y_pivot_apr2_count <- y_pivot_apr_count[,c(1,2,12,9,8,4,15,14,13,5,7,6,11,3)]
 
 #y_pivot_merge_count <- merge(x=y_pivot_jun2_count,y=y_pivot_apr2_count,by="BRAND_CATEGORY_NAME")
 
@@ -1001,7 +1005,7 @@ library(dplyr)
 
 
 x_pivot_mom <- x_pivot %>%
-filter(Month_Year == 'Dec-2018' | Month_Year == 'Jan-2019')%>% 
+filter(Month_Year == 'Feb-2019' | Month_Year == 'Mar-2019')%>% 
 filter(day(TRANSACTION.DATE.2) < day(Sys.Date()))
 #filter(year(TRANSACTION.DATE.2) == year(Sys.Date()-1))
 #group_by(Month_Year) %>%
@@ -1013,68 +1017,136 @@ x_pivot_mom_dcast <- dcast(x_pivot_mom,DESTINATION_COUNTRY ~ month(TRANSACTION.D
 x_pivot_mom_dcast_length <- dcast(x_pivot_mom,DESTINATION_COUNTRY ~ month(TRANSACTION.DATE.2), value.var = "REMITTED_AMOUNT_EXCLUDE_FX_MRG", fun.aggregate=length) 
 
 x_pivot_mom_dcast[,1] <- as.character(x_pivot_mom_dcast[,1])
-x_pivot_mom_dcast[6,1] <- "Nett Spends"
-x_pivot_mom_dcast[6,2:3] <- c(sum(x_pivot_mom_dcast[,2],na.rm=TRUE),sum(x_pivot_mom_dcast[,3],na.rm=TRUE))
+x_pivot_mom_dcast[7,1] <- "Nett Spends"
+x_pivot_mom_dcast[7,2:3] <- c(sum(x_pivot_mom_dcast[,2],na.rm=TRUE),sum(x_pivot_mom_dcast[,3],na.rm=TRUE))
 
 x_pivot_mom_dcast_length[,1] <- as.character(x_pivot_mom_dcast_length[,1])
-x_pivot_mom_dcast_length[6,1] <- "Nett Transactions"
-x_pivot_mom_dcast_length[6,2:3] <- c(sum(x_pivot_mom_dcast_length[,2],na.rm=TRUE),sum(x_pivot_mom_dcast_length[,3],na.rm=TRUE))
+x_pivot_mom_dcast_length[7,1] <- "Nett Transactions"
+x_pivot_mom_dcast_length[7,2:3] <- c(sum(x_pivot_mom_dcast_length[,2],na.rm=TRUE),sum(x_pivot_mom_dcast_length[,3],na.rm=TRUE))
 
 
 #colnames(x_pivot_mom_dcast)[2:3] <- c(paste("MTD",Sys.Date()-32),paste("MTD",Sys.Date()-1))
 #colnames(x_pivot_mom_dcast_length)[2:3] <- c(paste("MTD",Sys.Date()-32),paste("MTD",Sys.Date()-1))
 
-colnames(x_pivot_mom_dcast)[2:3] <- c(paste("MTD",Sys.Date()-1),paste("MTD",Sys.Date()-32))
-colnames(x_pivot_mom_dcast_length)[2:3] <- c(paste("MTD",Sys.Date()-1),paste("MTD",Sys.Date()-32))
+colnames(x_pivot_mom_dcast)[2:3] <- c(paste("MTD",Sys.Date()-29),paste("MTD",Sys.Date()-1))
+colnames(x_pivot_mom_dcast_length)[2:3] <- c(paste("MTD",Sys.Date()-29),paste("MTD",Sys.Date()-1))
 
 
 x_pivot_mom_final <- rbind(x_pivot_mom_dcast_length,x_pivot_mom_dcast)
 #((x_pivot_mom_final[,3] - x_pivot_mom_final[,2])/x_pivot_mom_final[,2])*100
-x_pivot_mom_final[,4] <- ((x_pivot_mom_final[,2] - x_pivot_mom_final[,3])/x_pivot_mom_final[,3])*100
+x_pivot_mom_final[,4] <- ((x_pivot_mom_final[,3] - x_pivot_mom_final[,2])/x_pivot_mom_final[,2])*100
 colnames(x_pivot_mom_final)[4] <- "MoM % Variance"
 x_pivot_mom_final[,4] <- paste(round(x_pivot_mom_final[,4],2),"%",sep="")
 
+#timestamp trend
+#timestamp <- x_pivot[,c(2,20,28)]
+#write.csv(timestamp,"C:\\Users\\P1318124\\Desktop\\Remittance\\timestamp.csv",row.names=FALSE)
+
+
+
+
+
+#SQL FOR CASHOUT
+
+
+SELECT acct_natly AS NATIONALITY, brnd_grp AS BRAND_CATEGORY_NAME, chnl_id AS CHANNEL, TO_CHAR(TRUNC(txn_dt,'iw')-1,'DD-Mon-YYYY') AS WEEK, to_char(txn_dt,'DD-Mon-YYYY') AS TRANSACTION_DAY, SUM(orig_amt)AS remit_sum, COUNT(orig_amt) AS brand_count
+FROM EDWDM.TEDW_SINGCASH_SALESJOURNAL_DOM a
+LEFT JOIN EDWDM.TEDW_SINGCASH_ACCOUNT b
+ON a.scr_acct_id = b.acct_id
+WHERE stat LIKE '%PST%'
+AND data_txn_rfnd IN ('False', 'FALSE')
+AND b.acct_msisdn NOT IN ('6583381170','6597727199','6596510899')
+AND brnd_grp_id IN ('1','12')
+AND txn_dt >= TO_DATE('01-Apr-2018','DD-Mon-YYYY')
+GROUP BY acct_natly, brnd_grp, chnl_id, to_char(TRUNC(txn_dt,'iw')-1,'DD-Mon-YYYY'), to_char(txn_dt,'DD-Mon-YYYY')
+
+
+--export as sql_cashout
+
+#R
+sql_cashout <- read.csv("C:\\Users\\P1318124\\Desktop\\Remittance\\sql_cashout.csv",header=TRUE)
+
+sql_cashout$TRANSACTION_DAY <- dmy(sql_cashout$TRANSACTION_DAY)
+
+sql_cashout$Month_Year <- paste(month.abb[month(sql_cashout$TRANSACTION_DAY)], year(sql_cashout$TRANSACTION_DAY),sep="-")
+
+sql_cashout_monthly <- dcast(sql_cashout, BRAND_CATEGORY_NAME ~ Month_Year, value.var = "REMIT_SUM", fun.aggregate = sum)
+sql_cashout_monthly <- sql_cashout_monthly[,c(1,2,11,9,8,4,14,13,12,5,7,6,10,3)]
+sql_cashout_daily <- dcast(sql_cashout, BRAND_CATEGORY_NAME ~ TRANSACTION_DAY, value.var = "REMIT_SUM", fun.aggregate = sum)
+
+sql_cashout_monthly_txn <- dcast(sql_cashout, BRAND_CATEGORY_NAME ~ Month_Year, value.var = "BRAND_COUNT", fun.aggregate = sum)
+sql_cashout_monthly_txn <- sql_cashout_monthly_txn[,c(1,2,11,9,8,4,14,13,12,5,7,6,10,3)]
+sql_cashout_daily_txn <- dcast(sql_cashout, BRAND_CATEGORY_NAME ~ TRANSACTION_DAY, value.var = "BRAND_COUNT", fun.aggregate = sum)
+
+sql_cashout_monthly_all <- rbind(sql_cashout_monthly,sql_cashout_monthly_txn)
+sql_cashout_daily_all <- rbind(sql_cashout_daily,sql_cashout_daily_txn)
+
+#sql_cashout_monthly_sum <- as.data.frame(sql_cashout_monthly[1,])
+#sql_cashout_monthly_sum[1,1] <- "Nett Spends"
+
+#sql_cashout_monthly_sum <- for(i in 2:ncol(sql_cashout_monthly)) {
+#sql_cashout_monthly_sum[i] <- sum(sql_cashout_monthly[,i])
+#}
+
+
+
+
+
+
+
+
+
+
+
+
 
 library(xlsx)
-write.xlsx(x_txn_spend, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx", sheetName="Corridor",row.names=FALSE,append=FALSE)
-write.xlsx(x_txn_spend_day, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx", sheetName="Corridor Daily", append = TRUE, row.names=FALSE)
-write.xlsx(y_txn_spend, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx", sheetName="Brand", append = TRUE, row.names=FALSE)
-write.xlsx(y_txn_spend_day, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx", sheetName="Brand Daily", append = TRUE, row.names=FALSE)
-write.xlsx(x_pivot_mom_final, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx", sheetName="MoM % Variance", append = TRUE, row.names=FALSE)
-write.xlsx(x_txn_spend_day_ph, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx", sheetName="Philippines", append = TRUE, row.names=FALSE)
-write.xlsx(x_txn_spend_day_indo, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx", sheetName="Indonesia", append = TRUE, row.names=FALSE)
-write.xlsx(x_txn_spend_day_india, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx", sheetName="India", append = TRUE, row.names=FALSE)
-write.xlsx(x_txn_spend_day_bg, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx", sheetName="Bangladesh", append = TRUE, row.names=FALSE)
+xlsx::write.xlsx(x_txn_spend, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx", sheetName="Corridor",row.names=FALSE,append=FALSE)
+xlsx::write.xlsx(x_txn_spend_day, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx", sheetName="Corridor Daily", append = TRUE, row.names=FALSE)
+xlsx::write.xlsx(sql_cashout_monthly_all, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx", sheetName="Brand", append = TRUE, row.names=FALSE)
+xlsx::write.xlsx(sql_cashout_daily_all, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx", sheetName="Brand Daily", append = TRUE, row.names=FALSE)
+xlsx::write.xlsx(x_pivot_mom_final, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx", sheetName="MoM % Variance", append = TRUE, row.names=FALSE)
+xlsx::write.xlsx(x_txn_spend_day_ph, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx", sheetName="Philippines", append = TRUE, row.names=FALSE)
+xlsx::write.xlsx(x_txn_spend_day_indo, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx", sheetName="Indonesia", append = TRUE, row.names=FALSE)
+xlsx::write.xlsx(x_txn_spend_day_india, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx", sheetName="India", append = TRUE, row.names=FALSE)
+xlsx::write.xlsx(x_txn_spend_day_bg, file = "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx", sheetName="Bangladesh", append = TRUE, row.names=FALSE)
 
 
 
 
-#Create blank workbook
-library(openxlsx)
-library(XLConnect)
+##Create blank workbook
+#library(openxlsx)
+#library(XLConnect)
 
-OUT <- createWorkbook()
-addWorksheet(OUT,"Corridor")
-addWorksheet(OUT,"Corridor Daily")
-addWorksheet(OUT,"Brand")
-addWorksheet(OUT,"Brand Daily")
-addWorksheet(OUT,"MoM % Variance")
-addWorksheet(OUT,"Indonesia")
-addWorksheet(OUT,"Philippines")
-addWorksheet(OUT,"India")
-addWorksheet(OUT,"Bangladesh")
+#OUT <- createWorkbook()
+#addWorksheet(OUT,"Corridor")
+#addWorksheet(OUT,"Corridor Daily")
+#addWorksheet(OUT,"Brand")
+#addWorksheet(OUT,"Brand Daily")
+#addWorksheet(OUT,"MoM % Variance")
+#addWorksheet(OUT,"Indonesia")
+#addWorksheet(OUT,"Philippines")
+#addWorksheet(OUT,"India")
+#addWorksheet(OUT,"Bangladesh")
 
 
-writeData(OUT, sheet = "Corridor", x = x_txn_spend)
-writeData(OUT, sheet = "Corridor Daily", x = x_txn_spend_day)
-writeData(OUT, sheet = "Brand", x = y_txn_spend)
-writeData(OUT, sheet = "Brand Daily", x = y_txn_spend_day)
-writeData(OUT, sheet = "MoM % Variance", x = x_pivot_mom_final)
-writeData(OUT, sheet = "Philippines", x = x_txn_spend_day_ph)
-writeData(OUT, sheet = "Indonesia", x = x_txn_spend_day_indo)
-writeData(OUT, sheet = "India", x = x_txn_spend_day_india)
-writeData(OUT, sheet = "Bangladesh", x = x_txn_spend_day_bg)
+#writeData(OUT, sheet = "Corridor", x = x_txn_spend)
+#writeData(OUT, sheet = "Corridor Daily", x = x_txn_spend_day)
+#writeData(OUT, sheet = "Brand", x = y_txn_spend)
+#writeData(OUT, sheet = "Brand Daily", x = y_txn_spend_day)
+#writeData(OUT, sheet = "MoM % Variance", x = x_pivot_mom_final)
+#writeData(OUT, sheet = "Philippines", x = x_txn_spend_day_ph)
+#writeData(OUT, sheet = "Indonesia", x = x_txn_spend_day_indo)
+#writeData(OUT, sheet = "India", x = x_txn_spend_day_india)
+#writeData(OUT, sheet = "Bangladesh", x = x_txn_spend_day_bg)
 
-saveWorkbook(OUT, "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx",overwrite=TRUE)
+#saveWorkbook(OUT, "C:\\Users\\P1318124\\Desktop\\Remittance\\Working_Usage_Remittance.xlsx",overwrite=TRUE)
+
+
+
+
+
+
+
 
 
