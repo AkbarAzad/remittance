@@ -1,0 +1,189 @@
+SELECT *
+FROM EDWDM.TEDW_SINGCASH_FOREX_HUB --FX Rates
+ORDER BY DT_CREATED DESC
+
+
+
+SELECT *
+FROM EDWDM.TEDW_SINGCASH_SALESJOURNAL_HUB --Fee amount
+ORDER BY TXN_DT DESC
+
+
+SELECT COUNT(*), RLATNP_W_CUST --beneficiary details
+FROM EDWDM.TEDW_SINGCASH_ACCT_BENEFICIARY
+WHERE AML_STAT  LIKE 'W'
+AND STAT = 'A'
+GROUP BY RLATNP_W_CUST
+
+
+--TV Daily
+SELECT SUM(a.SRC_DEBIT + FX_MARGIN), SUM(a.SRC_DEBIT), to_char(a.TXN_DT,'DD-Mon-YYYY')
+FROM EDWDM.TEDW_SINGCASH_SALESJOURNAL_HUB a
+INNER JOIN EDWDM.TEDW_SINGCASH_SALESJOURNAL_DOM b
+ON a.scr_ref = b.txn_id
+WHERE a.STAT LIKE '%PST%'
+--AND b.CUST_MSISDN NOT IN ('6583381170','6597727199','6596510899')
+AND b.CUST_MSISDN != '6583381170' 
+AND b.CUST_MSISDN != '6597727199'
+AND b.CUST_MSISDN != '6596510899'
+And b.data_txn_rfnd = 'False'
+AND a.TXN_DT BETWEEN TO_DATE('20-Apr-2019','DD-Mon-YYYY') AND TO_DATE('23-Apr-2019','DD-Mon-YYYY')
+GROUP BY to_char(a.TXN_DT,'DD-Mon-YYYY')
+ORDER BY to_char(a.TXN_DT,'DD-Mon-YYYY') DESC
+
+--working usage remittance
+SELECT CORRIDOR,svc_class_name, txn_date, Nett_Spends, Nett_Transactions
+FROM
+(
+SELECT SUM(Nett_Spends) AS Nett_Spends, COUNT(Nett_Spends) AS Nett_Transactions, txn_date, day, month, year, CORRIDOR, svc_class_name
+FROM
+(
+SELECT a.SRC_DEBIT + FX_MARGIN AS Nett_Spends, to_char(a.TXN_DT,'DD-Mon-YYYY') AS txn_date,to_char(a.TXN_DT,'DD') AS day, to_char(a.TXN_DT,'MM') AS month, to_char(a.TXN_DT,'YYYY') AS year, b.svc_class_name,
+(CASE 
+WHEN b.SVC_CLASS_NAME LIKE '%Philippines%' OR b.SVC_CLASS_NAME LIKE '%GCash%'
+    THEN 'PHILIPPINES'
+WHEN b.SVC_CLASS_NAME LIKE '%Telkomsel%' OR b.SVC_CLASS_NAME LIKE '%Delima%' OR b.SVC_CLASS_NAME LIKE '%Indonesia%'
+    THEN 'INDONESIA'
+WHEN b.SVC_CLASS_NAME LIKE '%bKash%' OR b.SVC_CLASS_NAME LIKE '%Bangladesh%'
+    THEN 'BANGLADESH'
+WHEN b.SVC_CLASS_NAME LIKE '%India%'
+    THEN 'INDIA'
+WHEN b.SVC_CLASS_NAME LIKE '%China%'
+    THEN 'CHINA'
+WHEN b.SVC_CLASS_NAME LIKE '%Myanmar%'
+    THEN 'MYANMAR'
+END) CORRIDOR
+FROM EDWDM.TEDW_SINGCASH_SALESJOURNAL_HUB a
+INNER JOIN EDWDM.TEDW_SINGCASH_SALESJOURNAL_DOM b
+ON a.scr_ref = b.txn_id
+WHERE a.STAT LIKE '%PST%'
+AND b.CUST_MSISDN != '6583381170' 
+AND b.CUST_MSISDN != '6597727199'
+AND b.CUST_MSISDN != '6596510899'
+And b.data_txn_rfnd = 'False'
+AND a.TXN_DT >= TO_DATE('01-Apr-2018','DD-Mon-YYYY')
+)
+GROUP BY txn_date, day, month, year, CORRIDOR, svc_class_name
+ORDER BY year, month, day, CORRIDOR, svc_class_name
+)   
+
+
+--monthly tv
+SELECT CORRIDOR,svc_class_name, txn_month_year, Nett_Spends, Nett_Transactions
+FROM
+(
+SELECT SUM(Nett_Spends) AS Nett_Spends, COUNT(Nett_Spends) AS Nett_Transactions, txn_month_year, month, year, CORRIDOR, svc_class_name
+FROM
+(
+SELECT a.SRC_DEBIT + FX_MARGIN AS Nett_Spends, to_char(a.TXN_DT,'Mon-YYYY') AS txn_month_year,to_char(a.TXN_DT,'MM') AS month, to_char(a.TXN_DT,'YYYY') AS year,b.svc_class_name,
+(CASE 
+WHEN b.SVC_CLASS_NAME LIKE '%Philippines%' OR b.SVC_CLASS_NAME LIKE '%GCash%'
+    THEN 'PHILIPPINES'
+WHEN b.SVC_CLASS_NAME LIKE '%Telkomsel%' OR b.SVC_CLASS_NAME LIKE '%Delima%' OR b.SVC_CLASS_NAME LIKE '%Indonesia%'
+    THEN 'INDONESIA'
+WHEN b.SVC_CLASS_NAME LIKE '%bKash%' OR b.SVC_CLASS_NAME LIKE '%Bangladesh%'
+    THEN 'BANGLADESH'
+WHEN b.SVC_CLASS_NAME LIKE '%India%'
+    THEN 'INDIA'
+WHEN b.SVC_CLASS_NAME LIKE '%China%'
+    THEN 'CHINA'
+WHEN b.SVC_CLASS_NAME LIKE '%Myanmar%'
+    THEN 'MYANMAR'
+END) CORRIDOR
+FROM EDWDM.TEDW_SINGCASH_SALESJOURNAL_HUB a
+INNER JOIN EDWDM.TEDW_SINGCASH_SALESJOURNAL_DOM b
+ON a.scr_ref = b.txn_id
+WHERE a.STAT LIKE '%PST%'
+AND b.CUST_MSISDN != '6583381170' 
+AND b.CUST_MSISDN != '6597727199'
+AND b.CUST_MSISDN != '6596510899'
+And b.data_txn_rfnd = 'False'
+AND a.TXN_DT >= TO_DATE('01-Apr-2018','DD-Mon-YYYY')
+)
+GROUP BY txn_month_year, month, year, CORRIDOR, svc_class_name
+ORDER BY year, month, CORRIDOR, svc_class_name
+)   
+
+
+
+--prepaid topup daily
+
+SELECT BRAND_CATEGORY_NAME, txn_date, SUM(Nett_Spends) AS Nett_Spends, SUM(Nett_Transactions) AS Nett_Transactions
+FROM
+(
+SELECT brnd_grp AS BRAND_CATEGORY_NAME, to_char(txn_dt,'DD-Mon-YYYY') AS txn_date,to_char(txn_dt,'DD') AS day,to_char(txn_dt,'MM') AS month,to_char(txn_dt,'YYYY') AS year, SUM(orig_amt)AS Nett_Spends, COUNT(orig_amt) AS Nett_Transactions
+FROM EDWDM.TEDW_SINGCASH_SALESJOURNAL_DOM a
+LEFT JOIN EDWDM.TEDW_SINGCASH_ACCOUNT b
+ON a.scr_acct_id = b.acct_id
+WHERE stat LIKE '%PST%'
+AND data_txn_rfnd IN ('False', 'FALSE')
+AND b.acct_msisdn NOT IN ('6583381170','6597727199','6596510899')
+AND brnd_grp_id IN ('1','12')
+AND brnd_grp LIKE '%Prepaid Topup%'
+--AND brand_category_name LIKE '%Prepaid Topup%'
+AND txn_dt >= TO_DATE('01-Apr-2018','DD-Mon-YYYY')
+GROUP BY brnd_grp, to_char(txn_dt,'DD-Mon-YYYY'),to_char(txn_dt,'DD'),to_char(txn_dt,'MM'),to_char(txn_dt,'YYYY')
+)
+GROUP BY txn_date, day, month, year, BRAND_CATEGORY_NAME
+ORDER BY year, month, day, BRAND_CATEGORY_NAME
+
+
+--prepaid topup monthly
+
+SELECT BRAND_CATEGORY_NAME, txn_month_year, SUM(Nett_Spends) AS Nett_Spends, SUM(Nett_Transactions) AS Nett_Transactions
+FROM
+(
+SELECT brnd_grp AS BRAND_CATEGORY_NAME, to_char(txn_dt,'Mon-YYYY') AS txn_month_year,to_char(txn_dt,'MM') AS month,to_char(txn_dt,'YYYY') AS year, SUM(orig_amt)AS Nett_Spends, COUNT(orig_amt) AS Nett_Transactions
+FROM EDWDM.TEDW_SINGCASH_SALESJOURNAL_DOM a
+LEFT JOIN EDWDM.TEDW_SINGCASH_ACCOUNT b
+ON a.scr_acct_id = b.acct_id
+WHERE stat LIKE '%PST%'
+AND data_txn_rfnd IN ('False', 'FALSE')
+AND b.acct_msisdn NOT IN ('6583381170','6597727199','6596510899')
+AND brnd_grp_id IN ('1','12')
+AND brnd_grp LIKE '%Prepaid Topup%'
+--AND brand_category_name LIKE '%Prepaid Topup%'
+AND txn_dt >= TO_DATE('01-Apr-2018','DD-Mon-YYYY')
+GROUP BY brnd_grp, to_char(txn_dt,'Mon-YYYY'),to_char(txn_dt,'DD'),to_char(txn_dt,'MM'),to_char(txn_dt,'YYYY')
+)
+GROUP BY txn_month_year, month, year, BRAND_CATEGORY_NAME
+ORDER BY year, month, BRAND_CATEGORY_NAME
+
+
+#UNIQUE USERS REMITTANCE MONTHLY BY CORRIDOR
+SELECT CORRIDOR, txn_month_year, Nett_Spends, Nett_Transactions, UU
+FROM
+(
+SELECT SUM(Nett_Spends) AS Nett_Spends, COUNT(Nett_Spends) AS Nett_Transactions, COUNT(DISTINCT scr_acct_id) AS UU, txn_month_year, month, year, CORRIDOR
+FROM
+(
+SELECT a.SRC_DEBIT + FX_MARGIN AS Nett_Spends, to_char(a.TXN_DT,'Mon-YYYY') AS txn_month_year,to_char(a.TXN_DT,'MM') AS month, to_char(a.TXN_DT,'YYYY') AS year,b.svc_class_name,b.scr_acct_id,
+(CASE 
+WHEN b.SVC_CLASS_NAME LIKE '%Philippines%' OR b.SVC_CLASS_NAME LIKE '%GCash%'
+    THEN 'PHILIPPINES'
+WHEN b.SVC_CLASS_NAME LIKE '%Telkomsel%' OR b.SVC_CLASS_NAME LIKE '%Delima%' OR b.SVC_CLASS_NAME LIKE '%Indonesia%'
+    THEN 'INDONESIA'
+WHEN b.SVC_CLASS_NAME LIKE '%bKash%' OR b.SVC_CLASS_NAME LIKE '%Bangladesh%'
+    THEN 'BANGLADESH'
+WHEN b.SVC_CLASS_NAME LIKE '%India%'
+    THEN 'INDIA'
+WHEN b.SVC_CLASS_NAME LIKE '%China%'
+    THEN 'CHINA'
+WHEN b.SVC_CLASS_NAME LIKE '%Myanmar%'
+    THEN 'MYANMAR'
+END) CORRIDOR
+FROM EDWDM.TEDW_SINGCASH_SALESJOURNAL_HUB a
+INNER JOIN EDWDM.TEDW_SINGCASH_SALESJOURNAL_DOM b
+ON a.scr_ref = b.txn_id
+WHERE a.STAT LIKE '%PST%'
+AND b.CUST_MSISDN != '6583381170' 
+AND b.CUST_MSISDN != '6597727199'
+AND b.CUST_MSISDN != '6596510899'
+And b.data_txn_rfnd = 'False'
+AND a.TXN_DT >= TO_DATE('01-Apr-2018','DD-Mon-YYYY')
+)
+GROUP BY txn_month_year, month, year, CORRIDOR
+ORDER BY year, month, CORRIDOR
+)   
+
+
