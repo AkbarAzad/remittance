@@ -149,6 +149,49 @@ GROUP BY brnd_grp, to_char(txn_dt,'Mon-YYYY'),to_char(txn_dt,'DD'),to_char(txn_d
 GROUP BY txn_month_year, month, year, BRAND_CATEGORY_NAME
 ORDER BY year, month, BRAND_CATEGORY_NAME
 
+--IAT Daily
+daily
+SELECT TXN_DATE, Nett_Spends, Nett_Transactions
+FROM
+(
+SELECT to_char(txn_dt,'DD-Mon-YYYY') AS TXN_DATE,to_char(txn_dt,'DD') AS DAY ,to_char(txn_dt,'YYYY') AS YEAR,to_char(txn_dt,'MM') AS Month,  SUM(orig_amt) AS Nett_Spends, COUNT(orig_amt) AS Nett_Transactions
+FROM EDWDM.TEDW_SINGCASH_SALESJOURNAL_DOM
+WHERE svc_class_name = 'OnePay Payment'
+      and stat LIKE '%PST%'
+      and extra_info1 = '08993385'
+      and orig_amt > 0.09
+      and data_txn_rfnd = 'False'
+ --iat
+AND acct_MSISDN != '6583381170' 
+AND acct_MSISDN != '6597727199'
+AND acct_MSISDN != '6596510899'
+AND txn_dt >= TO_DATE('01-Apr-2018','DD-Mon-YYYY')
+GROUP BY to_char(txn_dt,'DD-Mon-YYYY') ,to_char(txn_dt,'DD')  ,to_char(txn_dt,'YYYY'),to_char(txn_dt,'MM')
+ORDER BY YEAR, MONTH, DAY
+)
+
+
+
+
+--IAT Monthly
+Monthly
+SELECT Year_Month, Nett_Spends, Nett_Transactions
+FROM
+(
+SELECT to_char(txn_dt,'YYYY-MM') AS Year_Month, SUM(orig_amt) AS Nett_Spends, COUNT(orig_amt) AS Nett_Transactions
+FROM EDWDM.TEDW_SINGCASH_SALESJOURNAL_DOM
+WHERE svc_class_name = 'OnePay Payment'
+      and stat LIKE '%PST%'
+      and extra_info1 = '08993385'
+      and orig_amt > 0.09
+      and data_txn_rfnd = 'False'
+ --iat
+AND acct_MSISDN != '6583381170' 
+AND acct_MSISDN != '6597727199'
+AND acct_MSISDN != '6596510899'
+AND txn_dt >= TO_DATE('01-Apr-2018','DD-Mon-YYYY')
+GROUP BY to_char(txn_dt,'YYYY-MM')
+ORDER BY Year_Month )
 
 #UNIQUE USERS REMITTANCE MONTHLY BY CORRIDOR
 SELECT CORRIDOR, txn_month_year, Nett_Spends, Nett_Transactions, UU
